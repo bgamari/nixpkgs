@@ -3,7 +3,7 @@
 
 # build-tools
 , bootPkgs, alex, happy, hscolour
-, autoconf, automake, coreutils, fetchurl, perl, python3, sphinx
+, autoconf, autoreconfHook, automake, coreutils, fetchurl, fetchpatch, perl, python3, sphinx
 
 , libffi, libiconv ? null, ncurses
 
@@ -78,6 +78,13 @@ stdenv.mkDerivation rec {
 
   outputs = [ "out" "doc" ];
 
+  patches = [
+    (fetchpatch { # Fix STRIP to be substituted from configure
+      url = "https://phabricator-files.haskell.org/file/data/m25iunikql6qqmljil27/PHID-FILE-z4y3gq73t7tzzlifuq6q/D4287.diff"; # NOT YET MERGED
+      sha256 = "0vjvlk4b2z0p3xm7pk3wmg5f6fn4gdr1szk2qbqm79kjzf7yiq5d";
+    })
+  ];
+
   postPatch = "patchShebangs .";
 
   # GHC is a bit confused on its cross terminology.
@@ -123,7 +130,7 @@ stdenv.mkDerivation rec {
     "--disable-large-address-space"
   ];
 
-  nativeBuildInputs = [ alex autoconf automake ghc happy hscolour perl python3 sphinx ];
+  nativeBuildInputs = [ alex autoconf autoreconfHook automake ghc happy hscolour perl python3 sphinx ];
 
   # For building runtime libs
   depsBuildTarget = [ targetCC ];
