@@ -15,12 +15,12 @@ stdenv.mkDerivation rec {
 
   makeFlags = [
     "PREFIX=\${out}"
-    "CC=gcc"
-    "AS=as"
-    "LD=ld"
-    "AR=ar"
-    "RANLIB=ranlib"
-    "OBJCOPY=objcopy"
+    "CC=${stdenv.cc.targetPrefix}cc"
+    "AS=${stdenv.cc.targetPrefix}as"
+    "LD=${stdenv.cc.targetPrefix}ld"
+    "AR=${stdenv.cc.targetPrefix}ar"
+    "RANLIB=${stdenv.cc.targetPrefix}ranlib"
+    "OBJCOPY=${stdenv.cc.targetPrefix}objcopy"
   ] ++ stdenv.lib.optional stdenv.isArm "ARCH=arm";
 
   meta = with stdenv.lib; {
