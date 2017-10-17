@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, gettext, libgpgerror, enableCapabilities ? false, libcap }:
+{ stdenv, fetchurl, buildPackages, gettext, libgpgerror, enableCapabilities ? false, libcap }:
 
 assert enableCapabilities -> stdenv.isLinux;
 
@@ -19,7 +19,9 @@ stdenv.mkDerivation rec {
   # The build enables -O2 by default for everything else.
   hardeningDisable = stdenv.lib.optional stdenv.cc.isClang "fortify";
 
-  buildInputs = [ libgpgerror ]
+  nativeBuildInputs = [ buildPackages.stdenv.cc ];
+  # libgpgerror.dev needed so configure script finds libgpgcrypt-config.
+  buildInputs = [ libgpgerror libgpgerror.dev ]
     ++ stdenv.lib.optional stdenv.isDarwin gettext
     ++ stdenv.lib.optional enableCapabilities libcap;
 
@@ -37,8 +39,11 @@ stdenv.mkDerivation rec {
     mkdir -p $out/lib
     cp src/.libs/libgcrypt.20.dylib $out/lib
   '';
+  configureFlags = [
+    ''--with-libgpg-error-prefix=${libgpgerror.dev.outPath}''
+  ];
 
-  doCheck = true;
+  doCheck = stdenv.hostPlatform == stdenv.buildPlatform;
 
   meta = with stdenv.lib; {
     homepage = https://www.gnu.org/software/libgcrypt/;
