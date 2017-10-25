@@ -1,5 +1,5 @@
 { stdenv, fetchurl, makeWrapper, autoreconfHook
-, pkgconfig, which
+, buildPackages, pkgconfig, which
 , flex, bison
 , linuxHeaders ? stdenv.cc.libc.linuxHeaders
 , pythonPackages
@@ -43,12 +43,12 @@ let
       bison
       flex
       pkgconfig
-      swig
       which
+      buildPackages.swig
+      buildPackages.perl
     ];
 
     buildInputs = [
-      perl
       pythonPackages.python
     ];
 
@@ -60,8 +60,9 @@ let
       substituteInPlace ./libraries/libapparmor/src/Makefile.in --replace "/usr/include/netinet/in.h" "${stdenv.cc.libc.dev}/include/netinet/in.h"
     '';
 
+    patches = [ ./cross-compiling.patch ];
     postPatch = "cd ./libraries/libapparmor";
-    configureFlags = "--with-python --with-perl";
+    configureFlags = "--with-python=${pythonPackages.python} --with-perl CC_FOR_BUILD=${buildPackages.stdenv.cc.prefix}gcc";
 
     outputs = [ "out" "python" ];
 

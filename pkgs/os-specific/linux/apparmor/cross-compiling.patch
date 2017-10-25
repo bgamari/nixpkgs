@@ -1,0 +1,24 @@
+commit 7760ea00233efe76e6ba93140f26fe4e5218879e
+Author: Ben Gamari <ben@smart-cactus.org>
+Date:   Wed Oct 25 15:10:38 2017 -0400
+
+    Fix perl.h check in cross-compiling case
+
+diff --git a/libraries/libapparmor/configure.ac b/libraries/libapparmor/configure.ac
+index 479ba6d..d0777d4 100644
+--- a/libraries/libapparmor/configure.ac
++++ b/libraries/libapparmor/configure.ac
+@@ -58,7 +58,12 @@ if test "$with_perl" = "yes"; then
+    AC_PATH_PROG(PERL, perl)
+    test -z "$PERL" && AC_MSG_ERROR([perl is required when enabling perl bindings])
+    perl_includedir="`$PERL -e 'use Config; print $Config{archlib}'`/CORE"
+-   AC_CHECK_FILE($perl_includedir/perl.h, enable_perl=yes, enable_perl=no)
++   if test "$cross_compiling" != "yes"; then
++     AC_CHECK_FILE($perl_includedir/perl.h, enable_perl=yes, enable_perl=no)
++   else
++     enable_perl=yes
++     AC_MSG_NOTICE([Assuming that perl.h exists as we are cross-compiling])
++   fi
+ fi
+ 
+ 
