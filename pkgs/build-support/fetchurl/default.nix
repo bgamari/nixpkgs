@@ -130,6 +130,8 @@ else stdenv.mkDerivation {
 
   inherit curlOpts showURLs mirrorsFile postFetch downloadToTemp executable;
 
+  CURL = "${(stdenv.lib.getBin curl).outPath}/bin/curl";
+
   impureEnvVars = impureEnvVars ++ netrcImpureEnvVars;
 
   # Doing the download on a remote machine just duplicates network
