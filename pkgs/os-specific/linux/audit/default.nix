@@ -1,5 +1,5 @@
 {
-  stdenv, fetchurl,
+  stdenv, buildPackages, fetchurl,
   enablePython ? false, python ? null,
 }:
 
@@ -16,12 +16,14 @@ stdenv.mkDerivation rec {
   outputs = [ "bin" "dev" "out" "man" ];
 
   buildInputs = stdenv.lib.optional enablePython python;
+  nativeBuildInputs = [ buildPackages.stdenv.cc ];
 
   configureFlags = [
     # z/OS plugin is not useful on Linux,
     # and pulls in an extra openldap dependency otherwise
     "--disable-zos-remote"
     (if enablePython then "--with-python" else "--without-python")
+    "CC_FOR_BUILD=${buildPackages.stdenv.cc.targetPrefix}gcc"
   ];
 
   enableParallelBuilding = true;
