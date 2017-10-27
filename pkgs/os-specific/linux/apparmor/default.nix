@@ -60,9 +60,9 @@ let
       substituteInPlace ./libraries/libapparmor/src/Makefile.in --replace "/usr/include/netinet/in.h" "${stdenv.cc.libc.dev}/include/netinet/in.h"
     '';
 
-    patches = [ ./cross-compiling.patch ];
+    patches = [ ./cross-compiling.patch ./cross-compiling-2.patch ];
     postPatch = "cd ./libraries/libapparmor";
-    configureFlags = "--with-python=${pythonPackages.python} --with-perl CC_FOR_BUILD=${buildPackages.stdenv.cc.prefix}gcc";
+    configureFlags = "--with-python=${pythonPackages.python} --without-perl CC_FOR_BUILD=${buildPackages.stdenv.cc.prefix}cc";
 
     outputs = [ "out" "python" ];
 

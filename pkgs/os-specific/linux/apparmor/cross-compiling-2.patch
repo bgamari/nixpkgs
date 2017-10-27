@@ -1,0 +1,19 @@
+commit e18e04d09e8553f5b9c298e450a7cd52bf3db65e
+Author: Ben Gamari <ben@smart-cactus.org>
+Date:   Fri Oct 27 00:14:48 2017 -0400
+
+    perl: Ensure cross-compilation toolchain is propagated
+
+diff --git a/libraries/libapparmor/swig/perl/Makefile.am b/libraries/libapparmor/swig/perl/Makefile.am
+index 901fc62..4ceec9e 100644
+--- a/libraries/libapparmor/swig/perl/Makefile.am
++++ b/libraries/libapparmor/swig/perl/Makefile.am
+@@ -11,7 +11,7 @@ MOSTLYCLEANFILES=libapparmor_wrap.c LibAppArmor.pm
+ LibAppArmor.pm: libapparmor_wrap.c
+ 
+ Makefile.perl: Makefile.PL LibAppArmor.pm
+-	$(PERL) $< PREFIX=$(prefix) MAKEFILE=$@
++	$(PERL) $< PREFIX=$(prefix) MAKEFILE=$@ CC=$(CC) AR=$(AR) LD=$(CC)
+ 	sed -ie 's/^LD_RUN_PATH.*//g' Makefile.perl
+ 
+ LibAppArmor.so: libapparmor_wrap.c Makefile.perl
