@@ -13,6 +13,8 @@ stdenv.mkDerivation {
 
   inherit (kernel) src makeFlags;
 
+  patches = stdenv.lib.optional (hostPlatform != buildPlatform) [ ./perf-binutils-path.patch ];
+
   preConfigure = ''
     cd tools/perf
     sed -i s,/usr/include/elfutils,$elfutils/include/elfutils, Makefile
@@ -21,10 +23,14 @@ stdenv.mkDerivation {
   '';
 
   # perf refers both to newt and slang
-  nativeBuildInputs = [ asciidoc xmlto docbook_xsl docbook_xml_dtd_45 libxslt
-      flex bison libiberty libaudit makeWrapper pkgconfig python perl ];
-  buildInputs = [ elfutils newt slang libunwind libbfd zlib ] ++
-    stdenv.lib.optional withGtk gtk2;
+  nativeBuildInputs = [
+    asciidoc xmlto docbook_xsl docbook_xml_dtd_45 libxslt
+    flex bison libiberty libaudit
+    makeWrapper pkgconfig python perl
+  ];
+  buildInputs = [
+    elfutils newt slang libunwind libbfd zlib
+  ] ++ stdenv.lib.optional withGtk gtk2;
 
   # Note: we don't add elfutils to buildInputs, since it provides a
   # bad `ld' and other stuff.
@@ -39,12 +45,11 @@ stdenv.mkDerivation {
       "-Wno-error=unused-const-variable" "-Wno-error=misleading-indentation"
     ];
 
-  installFlags = "install install-man ASCIIDOC8=1";
+  makeFlags = if hostPlatform == buildPlatform
+    then null
+    else "CROSS_COMPILE=${stdenv.cc.prefix}";
 
-  preFixup = ''
-    wrapProgram $out/bin/perf \
-      --prefix PATH : "${binutils}/bin"
-  '';
+  installFlags = "install install-man ASCIIDOC8=1";
 
   meta = {
     homepage = https://perf.wiki.kernel.org/;
