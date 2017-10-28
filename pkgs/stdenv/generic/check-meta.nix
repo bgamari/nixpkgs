@@ -2,7 +2,7 @@
 # descriptive error when the check fails; return `derivationArg` otherwise.
 # Note: no dependencies are checked in this step.
 
-{ lib, config, system, meta, derivationArg, mkDerivationArg }:
+{ lib, config, hostPlatform, meta, derivationArg, mkDerivationArg }:
 
 let
   attrs = mkDerivationArg; # TODO: probably get rid of passing this one
@@ -188,8 +188,8 @@ let
       { valid = false; reason = "blacklisted"; errormsg = "has a blacklisted license (‘${showLicense attrs.meta.license}’)"; }
     else if !allowBroken && attrs.meta.broken or false then
       { valid = false; reason = "broken"; errormsg = "is marked as broken"; }
-    else if !allowUnsupportedSystem && !allowBroken && attrs.meta.platforms or null != null && !lib.lists.elem system attrs.meta.platforms then
-      { valid = false; reason = "broken"; errormsg = "is not supported on ‘${system}’"; }
+    else if !allowUnsupportedSystem && !allowBroken && attrs.meta.platforms or null != null && !lib.lists.elem hostPlatform.system attrs.meta.platforms then
+      { valid = false; reason = "broken"; errormsg = "is not supported on ‘${hostPlatform.system}’"; }
     else if !(hasAllowedInsecure attrs) then
       { valid = false; reason = "insecure"; errormsg = "is marked as insecure"; }
     else let res = checkMeta (attrs.meta or {}); in if res != [] then

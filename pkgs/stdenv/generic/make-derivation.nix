@@ -212,9 +212,7 @@ rec {
           {
             inherit lib config meta derivationArg;
             mkDerivationArg = attrs;
-            # Nix itself uses the `system` field of a derivation to decide where
-            # to build it. This is a bit confusing for cross compilation.
-            inherit (stdenv) system;
+            inherit (stdenv) hostPlatform;
           }))
         ( {
             overrideAttrs = f: mkDerivation (attrs // (f attrs));
