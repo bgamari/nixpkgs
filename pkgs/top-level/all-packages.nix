@@ -13778,6 +13778,7 @@ with pkgs;
     ubootRaspberryPi3_64bit
     ubootUtilite
     ubootWandboard
+    ubootMicrozed
     ;
 
   # Non-upstream U-Boots:
