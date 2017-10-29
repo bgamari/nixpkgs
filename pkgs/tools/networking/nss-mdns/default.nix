@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
     license = stdenv.lib.licenses.lgpl2Plus;
 
     # Supports both the GNU and FreeBSD NSS.
-    platforms = stdenv.lib.platforms.gnu ++ stdenv.lib.platforms.freebsd;
+    #platforms = stdenv.lib.platforms.gnu ++ stdenv.lib.platforms.freebsd;
 
     maintainers = [ ];
   };
