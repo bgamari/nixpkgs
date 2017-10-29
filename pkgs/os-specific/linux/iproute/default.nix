@@ -1,4 +1,4 @@
-{ fetchurl, stdenv, lib, flex, bison, db, iptables, pkgconfig }:
+{ fetchurl, stdenv, buildPackages, lib, flex, bison, db, iptables, pkgconfig }:
 
 stdenv.mkDerivation rec {
   name = "iproute2-${version}";
@@ -33,7 +33,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [ db iptables ];
-  nativeBuildInputs = [ bison flex pkgconfig ];
+  nativeBuildInputs = [ bison flex pkgconfig buildPackages.stdenv.cc ];
 
   enableParallelBuilding = true;
 
