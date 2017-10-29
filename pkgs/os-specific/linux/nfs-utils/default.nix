@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, lib, pkgconfig, utillinux, libcap, libtirpc, libevent, libnfsidmap
+{ stdenv, fetchurl, buildPackages, lib
+, pkgconfig, utillinux, libcap, libtirpc, libevent, libnfsidmap
 , sqlite, kerberos, kmod, libuuid, keyutils, lvm2, systemd, coreutils, tcp_wrappers
 , buildEnv
 }:
@@ -22,6 +23,7 @@ in stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ pkgconfig ];
+  depsBuildBuild = [ buildPackages.stdenv.cc ];
 
   buildInputs = [
     libtirpc libcap libevent libnfsidmap sqlite lvm2
@@ -37,7 +39,10 @@ in stdenv.mkDerivation rec {
       "--with-systemd=$(out)/etc/systemd/system"
       "--enable-libmount-mount"
     ]
-    ++ lib.optional (stdenv ? glibc) "--with-rpcgen=${stdenv.glibc.bin}/bin/rpcgen";
+    ++ lib.optional (stdenv ? glibc) "--with-rpcgen=${stdenv.glibc.bin}/bin/rpcgen"
+    ++ stdenv.lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+      "CC_FOR_BUILD=${buildPackages.stdenv.cc.targetPrefix}gcc"
+    ];
 
   postPatch =
     ''
