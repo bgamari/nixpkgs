@@ -11,8 +11,8 @@ stdenv.mkDerivation rec {
   outputs = [ "out" "doc" ];
   outputMan = "out"; # users will want `man man` to work
 
-  nativeBuildInputs = [ pkgconfig makeWrapper ];
-  buildInputs = [ libpipeline db groff ];
+  nativeBuildInputs = [ pkgconfig makeWrapper groff ];
+  buildInputs = [ libpipeline db ];
 
   postPatch = ''
     substituteInPlace src/man_db.conf.in \
