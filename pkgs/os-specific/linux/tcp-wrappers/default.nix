@@ -31,6 +31,8 @@ in stdenv.mkDerivation rec {
   postPatch = stdenv.lib.optionalString stdenv.hostPlatform.isMusl ''
     substituteInPlace Makefile \
       --replace '-DNETGROUP' '-DUSE_GETDOMAIN'
+
+    substituteInPlace Makefile --replace "AR	= ar" "AR = ${stdenv.cc.targetPrefix}ar"
   '';
 
   buildInputs = [ libnsl ];
