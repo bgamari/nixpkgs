@@ -13,6 +13,8 @@ stdenv.mkDerivation {
 
   outputs = [ "bin" "dev" "out" "man" ];
 
+  enableParallelBuilding = true;
+
   nativeBuildInputs = [ autoreconfHook bison flex pkgconfig ];
 
   meta = with lib; {
