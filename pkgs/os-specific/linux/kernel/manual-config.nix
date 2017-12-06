@@ -1,4 +1,6 @@
 { buildPackages, runCommand, nettools, bc, perl, gmp, libmpc, mpfr, openssl
+, libelf
+, utillinux
 , writeTextFile, ubootTools
 , hostPlatform
 }:
@@ -29,6 +31,8 @@ in {
   # Manually specified nixexpr representing the config
   # If unspecified, this will be autodetected from the .config
   config ? stdenv.lib.optionalAttrs allowImportFromDerivation (readConfig configfile),
+  # Use defaultMeta // extraMeta
+  extraMeta ? {},
   # Whether to utilize the controversial import-from-derivation feature to parse the config
   allowImportFromDerivation ? false
 }:
@@ -221,13 +225,13 @@ let
           maintainers.thoughtpolice
         ];
         platforms = platforms.linux;
-      } // extraMeta;
-    };
+      };
+    } // extraMeta;
 in
 
 assert stdenv.lib.versionAtLeast version "4.14" -> libelf != null;
 assert stdenv.lib.versionAtLeast version "4.15" -> utillinux != null;
-stdenv.mkDerivation ((drvAttrs config hostPlatform.platform (kernelPatches ++ nativeKernelPatches) configfile) // {
+stdenv.mkDerivation ((drvAttrs config hostPlatform.platform kernelPatches configfile) // {
   name = "linux-${version}";
 
   enableParallelBuilding = true;
@@ -241,10 +245,10 @@ stdenv.mkDerivation ((drvAttrs config hostPlatform.platform (kernelPatches ++ na
   hardeningDisable = [ "bindnow" "format" "fortify" "stackprotector" "pic" ];
 
   makeFlags = commonMakeFlags ++ [
-    "HOSTCC=${buildPackages.stdenv.cc.prefix}gcc"
+    "HOSTCC=${buildPackages.stdenv.cc.targetPrefix}gcc"
     "ARCH=${stdenv.hostPlatform.platform.kernelArch}"
   ] ++ stdenv.lib.optional (stdenv.hostPlatform != stdenv.buildPlatform) [
-    "CROSS_COMPILE=${stdenv.cc.prefix}"
+    "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
   ];
 
   karch = hostPlatform.platform.kernelArch;

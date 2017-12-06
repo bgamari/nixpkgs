@@ -95,7 +95,7 @@ let
       cd $buildRoot
 
       # Get a basic config file for later refinement with $generateConfig.
-      make HOSTCC=${buildPackages.stdenv.cc.prefix}gcc -C ../$sourceRoot O=$PWD $kernelBaseConfig ARCH=$arch
+      make HOSTCC=${buildPackages.stdenv.cc.targetPrefix}gcc -C ../$sourceRoot O=$PWD $kernelBaseConfig ARCH=$arch
 
       # Create the config file.
       echo "generating kernel configuration..."
