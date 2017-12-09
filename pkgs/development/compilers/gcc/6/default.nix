@@ -172,7 +172,7 @@ let version = "6.4.0";
     stageNameAddon = if crossStageStatic then "-stage-static" else "-stage-final";
     crossNameAddon = if targetPlatform != hostPlatform then "-${targetPlatform.config}" + stageNameAddon else "";
 
-    bootstrap = targetPlatform == hostPlatform;
+    bootstrap = targetPlatform == hostPlatform && buildPlatform == hostPlatform;
 
 in
 
@@ -355,7 +355,7 @@ stdenv.mkDerivation ({
   dontDisableStatic = true;
 
   # TODO(@Ericson2314): Always pass "--target" and always prefix.
-  configurePlatforms = [ "build" "host" ] ++ stdenv.lib.optional (targetPlatform != hostPlatform) "target";
+  configurePlatforms = [ "build" "host" "target" ];
 
   configureFlags =
     # Basic dependencies
