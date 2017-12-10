@@ -15,14 +15,16 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ perl ]
     # We need a native compiler to build perl XS extensions
     # when cross-compiling.
-    ++ optionals crossCompiling [buildPackages.stdenv.cc buildPackages.stdenv.cc.libc];
+    ++ optionals crossCompiling [buildPackages.stdenv.cc];
 
   buildInputs = [ xz ]
     ++ optionals stdenv.isSunOS [ libiconv gawk ]
     ++ optional interactive ncurses
     ++ optional doCheck procps; # for tests
 
-  configureFlags = stdenv.lib.optional stdenv.isSunOS "AWK=${gawk}/bin/awk";
+  configureFlags =
+    stdenv.lib.optional stdenv.isSunOS "AWK=${gawk}/bin/awk"
+    ++ optional crossCompiling "BUILD_CC=${buildPackages.stdenv.cc.targetPrefix}gcc";
 
   preInstall = ''
     installFlags="TEXMF=$out/texmf-dist";
