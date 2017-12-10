@@ -56,7 +56,7 @@ stdenv.mkDerivation rec {
   configureFlags =
     [ "--with-ssl=${openssl.dev}" "--with-gc=${boehmgc.dev}" ]
     ++ optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
-      "ac_cv_func_setpgrp_void=1"
+      "ac_cv_func_setpgrp_void=yes"
     ]
     ++ optional graphicsSupport "--enable-image=${optionalString x11Support "x11,"}fb";
 
