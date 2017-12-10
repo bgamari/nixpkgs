@@ -34,9 +34,8 @@ cmakeConfigurePhase() {
         # CMAKE_SYSTEM_NAME otherwise.
         # http://www.cmake.org/Wiki/CMake_Cross_Compiling
         cmakeFlags="-DCMAKE_CXX_COMPILER=$crossConfig-g++ -DCMAKE_C_COMPILER=$crossConfig-gcc $cmakeFlags"
-        cmakeFlags="-DCMAKE_AR=$AR_FOR_TARGET -DCMAKE_RANLIB=$RANLIB_FOR_TARGET $cmakeFlags"
+        cmakeFlags="-DCMAKE_AR=$crossConfig-ar -DCMAKE_RANLIB=$crossConfig-ranlib $cmakeFlags"
         cmakeFlags="-DCMAKE_STRIP=$crossConfig-strip $cmakeFlags"
-        # TODO: What about strip?
     fi
 
     # This installs shared libraries with a fully-specified install
