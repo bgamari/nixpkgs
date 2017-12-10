@@ -80,8 +80,6 @@ stdenv.mkDerivation rec {
       # TODO: Why are ar and friends not provided by the bintools wrapper?
     ];
 
-  buildFlags = "VERBOSE=1";
-
   # This isn't an autoconf configure script; triples are passed via
   # CMAKE_SYSTEM_NAME, etc.
   configurePlatforms = [];
