@@ -2,7 +2,7 @@
 , pkgconfig, boehmgc, perlPackages, libsodium, aws-sdk-cpp, brotli
 , autoreconfHook, autoconf-archive, bison, flex, libxml2, libxslt, docbook5, docbook5_xsl
 , libseccomp, busybox
-, hostPlatform
+, hostPlatform, buildPlatform
 , storeDir ? "/nix/store"
 , stateDir ? "/nix/var"
 , confDir ? "/etc"
@@ -57,6 +57,7 @@ let
          export LIBRARY_PATH="${bzip2.out}/lib"
          export CXXFLAGS="-Wno-error=reserved-user-defined-literal"
       '';
+           #export NIX_CROSS_LDFLAGS="-L${bzip2.crossDrv}/lib -rpath-link ${bzip2.crossDrv}/lib $NIX_CROSS_LDFLAGS"
 
     configureFlags =
       [ "--with-store-dir=${storeDir}"
@@ -71,39 +72,21 @@ let
         "--with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}"
       ] ++ lib.optionals (is112 && stdenv.isLinux) [
         "--with-sandbox-shell=${sh}/bin/busybox"
-      ];
+      ]
+      ++ lib.optional (
+          hostPlatform != buildPlatform && hostPlatform ? nix && hostPlatform.nix ? system
+      ) ''--with-system=${hostPlatform.nix.system}'';
 
     makeFlags = "profiledir=$(out)/etc/profile.d";
 
     installFlags = "sysconfdir=$(out)/etc";
 
-    doInstallCheck = true;
+    doInstallCheck = hostPlatform == buildPlatform;
 
     # socket path becomes too long otherwise
     preInstallCheck = lib.optional stdenv.isDarwin "export TMPDIR=/tmp";
 
     separateDebugInfo = stdenv.isLinux;
-
-    crossAttrs = {
-      postUnpack =
-        '' export CPATH="${bzip2.crossDrv}/include"
-           export NIX_CROSS_LDFLAGS="-L${bzip2.crossDrv}/lib -rpath-link ${bzip2.crossDrv}/lib $NIX_CROSS_LDFLAGS"
-        '';
-
-      configureFlags =
-        ''
-          --with-store-dir=${storeDir} --localstatedir=${stateDir}
-          --with-dbi=${perlPackages.DBI}/${perl.libPrefix}
-          --with-dbd-sqlite=${perlPackages.DBDSQLite}/${perl.libPrefix}
-          --with-www-curl=${perlPackages.WWWCurl}/${perl.libPrefix}
-          --disable-init-state
-          --enable-gc
-        '' + stdenv.lib.optionalString (
-            hostPlatform ? nix && hostPlatform.nix ? system
-        ) ''--with-system=${hostPlatform.nix.system}'';
-
-      doInstallCheck = false;
-    };
 
     enableParallelBuilding = true;
 
