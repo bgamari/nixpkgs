@@ -39,11 +39,11 @@ let
       ++ lib.optionals (!is112) [ perl ]
       ++ lib.optionals fromGit [ autoreconfHook autoconf-archive bison flex libxml2 libxslt docbook5 docbook5_xsl ];
 
-    buildInputs = [ curl openssl sqlite xz ]
+    buildInputs = [ curl openssl sqlite xz bzip2 ]
       ++ lib.optional (stdenv.isLinux || stdenv.isDarwin) libsodium
       ++ lib.optionals fromGit [ brotli ] # Since 1.12
       ++ lib.optional stdenv.isLinux libseccomp
-      ++ lib.optional ((stdenv.isLinux || stdenv.isDarwin) && is112 && !crossCompiling)
+      ++ lib.optional ((stdenv.isLinux || stdenv.isDarwin) && is112)
           (aws-sdk-cpp.override {
             apis = ["s3"];
             customMemoryManagement = false;
@@ -59,7 +59,6 @@ let
          export LIBRARY_PATH="${bzip2.out}/lib"
          export CXXFLAGS="-Wno-error=reserved-user-defined-literal"
       '';
-           #export NIX_CROSS_LDFLAGS="-L${bzip2.crossDrv}/lib -rpath-link ${bzip2.crossDrv}/lib $NIX_CROSS_LDFLAGS"
 
     configureFlags =
       [ "--with-store-dir=${storeDir}"
