@@ -22,6 +22,8 @@ let
     '';
   };
 
+  crossCompiling = buildPlatform != hostPlatform;
+
   common = { name, suffix ? "", src, fromGit ? false }: stdenv.mkDerivation rec {
     inherit name src;
     version = lib.getVersion name;
@@ -41,7 +43,7 @@ let
       ++ lib.optional (stdenv.isLinux || stdenv.isDarwin) libsodium
       ++ lib.optionals fromGit [ brotli ] # Since 1.12
       ++ lib.optional stdenv.isLinux libseccomp
-      ++ lib.optional ((stdenv.isLinux || stdenv.isDarwin) && is112)
+      ++ lib.optional ((stdenv.isLinux || stdenv.isDarwin) && is112 && !crossCompiling)
           (aws-sdk-cpp.override {
             apis = ["s3"];
             customMemoryManagement = false;
@@ -74,7 +76,7 @@ let
         "--with-sandbox-shell=${sh}/bin/busybox"
       ]
       ++ lib.optional (
-          hostPlatform != buildPlatform && hostPlatform ? nix && hostPlatform.nix ? system
+          crossCompiling && hostPlatform ? nix && hostPlatform.nix ? system
       ) ''--with-system=${hostPlatform.nix.system}'';
 
     makeFlags = "profiledir=$(out)/etc/profile.d";
