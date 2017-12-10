@@ -62,7 +62,7 @@ let
 
     patches = [ ./cross-compiling.patch ./cross-compiling-2.patch ];
     postPatch = "cd ./libraries/libapparmor";
-    configureFlags = "--with-python=${pythonPackages.python} --without-perl CC_FOR_BUILD=${buildPackages.stdenv.cc.prefix}cc";
+    configureFlags = "--with-python=${pythonPackages.python} --without-perl CC_FOR_BUILD=${buildPackages.stdenv.cc.targetPrefix}cc";
 
     outputs = [ "out" "python" ];
 
