@@ -2,15 +2,15 @@
 
 with stdenv.lib;
 
-stdenv.mkDerivation rec {
+let
+  crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
+in stdenv.mkDerivation rec {
   name = "texinfo-6.5";
 
   src = fetchurl {
     url = "mirror://gnu/texinfo/${name}.tar.xz";
     sha256 = "0qjzvbvnv9003xdrcpi3jp7y68j4hq2ciw9frh2hghh698zlnxvp";
   };
-
-  crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
 
   nativeBuildInputs = [ perl ]
     # We need a native compiler to build perl XS extensions
@@ -24,7 +24,10 @@ stdenv.mkDerivation rec {
 
   configureFlags =
     stdenv.lib.optional stdenv.isSunOS "AWK=${gawk}/bin/awk"
-    ++ optional crossCompiling "BUILD_CC=${buildPackages.stdenv.cc.targetPrefix}gcc";
+    ++ optionals crossCompiling [
+      "PERL=${buildPackages.perl}/bin/perl"
+      "BUILD_CC=${buildPackages.stdenv.cc.targetPrefix}gcc"
+    ];
 
   preInstall = ''
     installFlags="TEXMF=$out/texmf-dist";
