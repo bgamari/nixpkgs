@@ -96,6 +96,14 @@ in
         multi-platform deployment, or when building virtual machines.
       '';
     };
+
+    crossSystem = mkOption {
+      default = null;
+      example = "i686-linux";
+      description = ''
+        TODO
+      '';
+    };
   };
 
   config = {
