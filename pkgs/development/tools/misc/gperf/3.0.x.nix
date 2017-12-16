@@ -10,6 +10,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ autoreconfHook ];
   autoreconfPhase = "libtoolize --install && autoreconf";
+  configureFlags = [ "AR=${stdenv.cc.bintools.targetPrefix}ar" ];
   patches = [ ./fix-configure.patch ];
 
   meta = {
