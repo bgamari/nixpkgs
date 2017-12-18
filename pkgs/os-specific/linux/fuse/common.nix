@@ -30,8 +30,7 @@ in stdenv.mkDerivation rec {
 
   nativeBuildInputs = if isFuse3
     then [ meson ninja pkgconfig ]
-    else [ autoconf automake libtool ];
-  buildInputs = stdenv.lib.optional (!isFuse3) gettext;
+    else [ autoconf automake gettext libtool ];
 
   outputs = [ "out" ] ++ stdenv.lib.optional isFuse3 "common";
 
