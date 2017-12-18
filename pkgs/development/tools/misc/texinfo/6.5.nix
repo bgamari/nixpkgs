@@ -1,4 +1,4 @@
-{ stdenv, buildPackages, fetchurl, ncurses, perl, xz, libiconv, gawk, procps, interactive ? false }:
+{ stdenv, buildPackages, automake, autoconf, fetchurl, ncurses, perl, xz, libiconv, gawk, procps, help2man, interactive ? false }:
 
 with stdenv.lib;
 
@@ -12,21 +12,27 @@ in stdenv.mkDerivation rec {
     sha256 = "0qjzvbvnv9003xdrcpi3jp7y68j4hq2ciw9frh2hghh698zlnxvp";
   };
 
-  nativeBuildInputs = [ perl ]
+  # TODO: This patch really shouldn't be needed.
+  patches = [ ./fix-toolchain-flags.patch ];
+
+  nativeBuildInputs = [ perl autoconf automake help2man ]
     # We need a native compiler to build perl XS extensions
     # when cross-compiling.
-    ++ optionals crossCompiling [buildPackages.stdenv.cc];
+    ++ optionals crossCompiling [buildPackages.stdenv.cc buildPackages.ncurses.out ];
 
   buildInputs = [ xz ]
     ++ optionals stdenv.isSunOS [ libiconv gawk ]
     ++ optional interactive ncurses
     ++ optional doCheck procps; # for tests
 
-  configureFlags =
-    stdenv.lib.optional stdenv.isSunOS "AWK=${gawk}/bin/awk"
-    ++ optionals crossCompiling [
+  configureFlags = [
+      "HELP2MAN=${buildPackages.help2man}/bin/help2man"
       "PERL=${buildPackages.perl}/bin/perl"
+    ]
+    ++ stdenv.lib.optional stdenv.isSunOS "AWK=${gawk}/bin/awk"
+    ++ optionals crossCompiling [
       "BUILD_CC=${buildPackages.stdenv.cc.targetPrefix}gcc"
+      "BUILD_LDFLAGS=-Wl,-r${buildPackages.ncurses}/lib"
     ];
 
   preInstall = ''

@@ -8,8 +8,10 @@ stdenv.mkDerivation rec {
     sha256 = "1cb14kp380jzk1yi4i7x9d8qplc8c5mgcbgycgs9ggpx34jhp9kw";
   };
 
-  nativeBuildInputs = [ makeWrapper gettext LocaleGettext ];
-  buildInputs = [ perl LocaleGettext ];
+  nativeBuildInputs = [ makeWrapper gettext ];
+  propagatedNativeBuildInputs = [ LocaleGettext ];
+  buildInputs = [ perl ];
+  propagatedBuildInputs = [ LocaleGettext ];
 
   doCheck = false;                                # target `check' is missing
 
