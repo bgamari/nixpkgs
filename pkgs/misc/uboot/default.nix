@@ -220,6 +220,6 @@ in rec {
   ubootMicrozed = buildUBoot rec {
     defconfig = "zynq_microzed_defconfig";
     targetPlatforms = ["armv7l-linux"];
-    filesToInstall = ["u-boot.bin"];
+    filesToInstall = ["u-boot.elf"];
   };
 }
