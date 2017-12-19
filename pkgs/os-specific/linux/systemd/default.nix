@@ -64,6 +64,12 @@ stdenv.mkDerivation rec {
       "--disable-ldconfig"
       "--disable-smack"
 
+      "KMOD=${kmod}/bin/kmod"
+      "KEXEC=${kexectools}/bin/kexec"
+      "SULOGIN=${utillinux.bin}/sbin/sulogin"
+      "MOUNT_PATH=${utillinux.bin}/bin/mount"
+      "UMOUNT_PATH=${utillinux.bin}/bin/umount"
+
       (if stdenv.isArm then "--disable-gnuefi" else "--enable-gnuefi")
       "--with-efi-libdir=${gnu-efi}/lib"
       "--with-efi-includedir=${gnu-efi}/include"
