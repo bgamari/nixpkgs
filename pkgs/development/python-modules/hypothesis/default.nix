@@ -23,6 +23,9 @@ buildPythonPackage rec {
 
   checkInputs = stdenv.lib.optionals doCheck [ pytest pytest_xdist flake8 flaky ];
   propagatedBuildInputs = stdenv.lib.optionals (pythonOlder "3.4") [ enum34 ];
+  preConfigure = ''
+    export SOURCE_DATE_EPOCH=315532800
+  '';
 
   inherit doCheck;
 
