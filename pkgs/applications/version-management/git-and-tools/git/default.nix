@@ -65,7 +65,7 @@ stdenv.mkDerivation {
 
   makeFlags = [ "prefix=\${out}" "SHELL_PATH=${stdenv.shell}" ]
     ++ stdenv.lib.optional (!guiSupport) "NO_TCLTK=1 "
-    ++ (if perlSupport then ["PERL_PATH=${perl}/bin/python"] else ["NO_PERL=1"])
+    ++ (if perlSupport then ["PERL_PATH=${perl}/bin/perl"] else ["NO_PERL=1"])
     ++ (if pythonSupport then ["PYTHON_PATH=${python}/bin/python"] else ["NO_PYTHON=1"])
     ++ stdenv.lib.optional withpcre2 "USE_LIBPCRE2=1"
     ++ stdenv.lib.optionals stdenv.isSunOS ["INSTALL=install" "NO_INET_NTOP=" "NO_INET_PTON="]
