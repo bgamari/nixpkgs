@@ -1,5 +1,5 @@
 { stdenv
-, fetchurl, fetchpatch, gnu-config, autoreconfHook264, bison, binutils-raw
+, fetchurl, fetchpatch, gnu-config, autoreconfHook264, buildPackages, bison, binutils-raw
 , libiberty, zlib
 }:
 
@@ -30,16 +30,26 @@ stdenv.mkDerivation rec {
   # We update these ourselves
   dontUpdateAutotoolsGnuConfigScripts = true;
 
+  depsBuildBuilds = [ buildPackages.stdenv.cc ];
   nativeBuildInputs = [ autoreconfHook264 bison ];
   buildInputs = [ libiberty zlib ];
 
-  configurePlatforms = [ "build" "host" ];
+  configurePlatforms = [ "build" "host" "target" ];
   configureFlags = [
     "--enable-targets=all" "--enable-64-bit-bfd"
     "--enable-install-libbfd"
     "--enable-shared"
     "--with-system-zlib"
+    # XXX: Why is the full path needed here?
+    "CC_FOR_BUILD=${buildPackages.stdenv.cc}/bin/${buildPackages.stdenv.cc.targetPrefix}cc"
   ];
+
+  postInstall = stdenv.lib.optionalString (stdenv.hostPlatform != stdenv.targetPlatform) ''
+    # the build system likes to move things into atypical locations
+    mkdir -p $dev
+    mv $out/${stdenv.hostPlatform.config}/${stdenv.targetPlatform.config}/include $dev/include
+    mv $out/${stdenv.hostPlatform.config}/${stdenv.targetPlatform.config}/lib $out/lib
+  '';
 
   enableParallelBuilding = true;
 
