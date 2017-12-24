@@ -45,8 +45,9 @@ stdenv.mkDerivation {
 
   nativeBuildInputs =
     [ perl # Used during installation
+      gettext
     ] ++ stdenv.lib.optionals withManual [ asciidoc texinfo xmlto docbook2x
-         docbook_xsl docbook_xml_dtd_45 libxslt gettext ];
+         docbook_xsl docbook_xml_dtd_45 libxslt ];
   buildInputs = [curl openssl zlib expat gettext cpio makeWrapper libiconv]
     ++ stdenv.lib.optional perlSupport perl
     ++ stdenv.lib.optionals guiSupport [tcl tk]
