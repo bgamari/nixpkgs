@@ -48,8 +48,6 @@ let
 
     hardeningDisable = [ "all" ];
 
-    makeFlags = [ "DTC=dtc" ] ++ extraMakeFlags;
-
     configurePhase = ''
       make $makeFlags ${defconfig}
       # Apply otherConfig
@@ -77,7 +75,7 @@ let
         "HOSTCC=${buildPackages.stdenv.cc.targetPrefix}gcc"
         "HOSTCFLAGS+=-I${stdenv.lib.getDev buildPackages.openssl}/include"
         "HOSTLDFLAGS+=-L${stdenv.lib.getLib buildPackages.openssl}/lib"
-      ];
+      ] ++ extraMakeFlags;
 
     meta = with stdenv.lib; {
       homepage = http://www.denx.de/wiki/U-Boot/;
