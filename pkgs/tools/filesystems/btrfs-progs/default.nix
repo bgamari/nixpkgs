@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
     asciidoc xmlto docbook_xml_dtd_45 docbook_xsl libxslt
   ];
   buildInputs = [
-    attr acl zlib libuuid e2fsprogs lzoz std
+    attr acl zlib libuuid e2fsprogs lzo zstd
   ];
 
   # gcc bug with -O1 on ARM with gcc 4.8
