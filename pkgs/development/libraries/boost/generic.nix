@@ -1,5 +1,5 @@
-{ stdenv, fetchurl, icu, expat, zlib, bzip2, python, fixDarwinDylibNames, libiconv
-, buildPlatform, hostPlatform
+{ stdenv, fetchurl, which, icu, expat, zlib, bzip2, python, fixDarwinDylibNames, libiconv
+, buildPlatform, hostPlatform, buildPackages
 , toolset ? if stdenv.cc.isClang then "clang" else null
 , enableRelease ? true
 , enableDebug ? false
@@ -151,7 +151,7 @@ stdenv.mkDerivation {
     ++ optional (hostPlatform == buildPlatform) icu
     ++ optional stdenv.isDarwin fixDarwinDylibNames
     ++ optional enablePython python
-    ++ optional enableNumpy numpy;
+    ++ optional enableNumpy python.pkgs.numpy;
   nativeBuildInputs = [ which ]
     ++ optional (hostPlatform != buildPlatform) buildPackages.boost.bjam;
 
@@ -188,8 +188,6 @@ stdenv.mkDerivation {
     mkdir -p $bjam/bin
     cp ./bjam $bjam/bin
   '';
-
-  setupHook = ./setup-hook.sh;
 
   postFixup = ''
     # Make boost header paths relative so that they are not runtime dependencies
