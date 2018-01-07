@@ -10,7 +10,7 @@
 , # LLVM is conceptually a run-time-only depedendency, but for
   # non-x86, we need LLVM to bootstrap later stages, so it becomes a
   # build-time dependency too.
-  llvmPackages
+  llvmPackages_39
 
 , # If enabled, GHC will be built with the GPL-free but slower integer-simple
   # library instead of the faster but GPLed integer-gmp library.
@@ -145,7 +145,7 @@ stdenv.mkDerivation rec {
   ] # Stringly speaking, LLVM is only needed for platforms the native
     # code generator does not support, but using it when
     # cross-compiling anywhere.]
-    ++ stdenv.lib.optional (targetPlatform != hostPlatform) llvmPackages.llvm;
+    ++ stdenv.lib.optional (targetPlatform != hostPlatform) llvmPackages_39.llvm;
 
   depsTargetTarget = map stdenv.lib.getDev (libDeps targetPlatform);
   depsTargetTargetPropagated = map (stdenv.lib.getOutput "out") (libDeps targetPlatform);
