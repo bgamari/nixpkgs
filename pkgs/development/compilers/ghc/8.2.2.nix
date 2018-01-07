@@ -119,8 +119,8 @@ stdenv.mkDerivation rec {
   configureFlags = [
     "--datadir=$doc/share/doc/ghc"
     "--with-curses-includes=${ncurses.dev}/include" "--with-curses-libraries=${ncurses.out}/lib"
-  ] ++ stdenv.lib.optional (targetPlatform == hostPlatform && ! enableIntegerSimple) [
-    "--with-gmp-includes=${gmp.dev}/include" "--with-gmp-libraries=${gmp.out}/lib"
+  ] ++ stdenv.lib.optional (! enableIntegerSimple) [
+    "--with-gmp-includes=${targetPackages.gmp.dev}/include" "--with-gmp-libraries=${targetPackages.gmp.out}/lib"
   ] ++ stdenv.lib.optional (targetPlatform == hostPlatform && hostPlatform.libc != "glibc") [
     "--with-iconv-includes=${libiconv}/include" "--with-iconv-libraries=${libiconv}/lib"
   ] ++ stdenv.lib.optionals (targetPlatform != hostPlatform) [
@@ -137,8 +137,6 @@ stdenv.mkDerivation rec {
 
   # For building runtime libs
   depsBuildTarget = [ targetCC ];
-
-  buildInputs = libDeps hostPlatform;
 
   propagatedBuildInputs = [
      targetPackages.stdenv.cc
