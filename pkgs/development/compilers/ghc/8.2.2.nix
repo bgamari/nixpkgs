@@ -125,6 +125,9 @@ stdenv.mkDerivation rec {
     "--with-iconv-includes=${libiconv}/include" "--with-iconv-libraries=${libiconv}/lib"
   ] ++ stdenv.lib.optionals (targetPlatform != hostPlatform) [
     "--enable-bootstrap-with-devel-snapshot"
+  ] ++ stdenv.lib.optionals (targetPlatform.isArm) [
+    "LD=${targetCC.bintools}/bin/${targetCC.bintools.targetPrefix}ld.gold"
+    "CFLAGS=-fuse-ld=gold"
   ] ++ stdenv.lib.optionals (targetPlatform.isDarwin && targetPlatform.isAarch64) [
     # fix for iOS: https://www.reddit.com/r/haskell/comments/4ttdz1/building_an_osxi386_to_iosarm64_cross_compiler/d5qvd67/
     "--disable-large-address-space"
