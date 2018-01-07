@@ -128,6 +128,8 @@ stdenv.mkDerivation rec {
   ] ++ stdenv.lib.optionals (targetPlatform.isArm) [
     "LD=${targetCC.bintools}/bin/${targetCC.bintools.targetPrefix}ld.gold"
     "CFLAGS=-fuse-ld=gold"
+    "CONF_GCC_LINKER_OPTS_STAGE1=-fuse-ld=gold"
+    "CONF_GCC_LINKER_OPTS_STAGE2=-fuse-ld=gold"
   ] ++ stdenv.lib.optionals (targetPlatform.isDarwin && targetPlatform.isAarch64) [
     # fix for iOS: https://www.reddit.com/r/haskell/comments/4ttdz1/building_an_osxi386_to_iosarm64_cross_compiler/d5qvd67/
     "--disable-large-address-space"
