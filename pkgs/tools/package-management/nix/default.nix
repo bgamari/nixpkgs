@@ -22,8 +22,6 @@ let
     '';
   };
 
-  crossCompiling = buildPlatform != hostPlatform;
-
   common = { name, suffix ? "", src, fromGit ? false }: stdenv.mkDerivation rec {
     inherit name src;
     version = lib.getVersion name;
@@ -74,8 +72,9 @@ let
       ] ++ lib.optionals (is112 && stdenv.isLinux) [
         "--with-sandbox-shell=${sh}/bin/busybox"
       ]
-      ++ lib.optional (
-          crossCompiling && hostPlatform ? nix && hostPlatform.nix ? system
+      ++ lib.optional (buildPlatform != hostPlatform
+                    && hostPlatform ? nix
+                    && hostPlatform.nix ? system
       ) ''--with-system=${hostPlatform.nix.system}'';
 
     makeFlags = "profiledir=$(out)/etc/profile.d";
