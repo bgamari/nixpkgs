@@ -57,7 +57,8 @@ let version = "6.4.0";
     enableParallelBuilding = true;
 
     patches =
-      [ ../use-source-date-epoch.patch ]
+      [ ../use-source-date-epoch.patch
+        ./explicit-fallthrus.patch ]
       ++ optional (targetPlatform != hostPlatform) ../libstdc++-target.patch
       ++ optional noSysDirs ../no-sys-dirs.patch
       ++ optional langFortran ../gfortran-driving.patch
