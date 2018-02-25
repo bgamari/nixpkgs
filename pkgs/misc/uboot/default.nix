@@ -99,7 +99,7 @@ in rec {
     dontStrip = false;
     extraMeta.platforms = stdenv.lib.platforms.linux;
     # build tools/kwboot
-    extraMakeFlags = [ "CONFIG_KIRKWOOD=y" "CROSS_BUILD_TOOLS=1" "NO_SDL=1" "tools" ];
+    extraMakeFlags = [ "CONFIG_KIRKWOOD=y" "CROSS_BUILD_TOOLS=1" "NO_SDL=1" "tools" "envtools" ];
     postConfigure = ''
       sed -i '/CONFIG_SYS_TEXT_BASE/c\CONFIG_SYS_TEXT_BASE=0x00000000' .config
     '';
@@ -109,7 +109,11 @@ in rec {
       "tools/kwboot"
       "tools/mkenvimage"
       "tools/mkimage"
+      "tools/env/fw_printenv"
     ];
+    postInstall = ''
+      ln -s $out/bin/fw_printenv $out/bin/fw_setenv
+    '';
   };
 
   ubootA20OlinuxinoLime = buildUBoot rec {
