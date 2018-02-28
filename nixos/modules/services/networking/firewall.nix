@@ -54,7 +54,7 @@ let
     '';
 
   writeShScript = name: text: let dir = pkgs.writeScriptBin name ''
-    #! ${pkgs.bash} -e
+    #! ${pkgs.bash}/bin/bash -e
     ${text}
   ''; in "${dir}/bin/${name}";
 
