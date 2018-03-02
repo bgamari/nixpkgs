@@ -24,6 +24,12 @@ stdenv.mkDerivation rec {
       --replace no-vcs-found ${version}
   '';
 
+  # They say they only support installs to /usr or /usr/local,
+  # so we have to handle this.
+  patchPhase = ''
+    sed -i -e 's,/usr/local/kicad,'$out,g common/gestfich.cpp
+  '';
+
   cmakeFlags =
     optionals (oceSupport) [ "-DKICAD_USE_OCE=ON" "-DOCE_DIR=${opencascade_oce}" ]
     ++ optional (ngspiceSupport) "-DKICAD_SPICE=ON"
