@@ -83,15 +83,6 @@ let
 
     dontStrip = true;
 
-    makeFlags = stdenv.lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform)
-      [
-        "DTC=dtc"
-        "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
-        "HOSTCC=${buildPackages.stdenv.cc.targetPrefix}gcc"
-        "HOSTCFLAGS+=-I${stdenv.lib.getDev buildPackages.openssl}/include"
-        "HOSTLDFLAGS+=-L${stdenv.lib.getLib buildPackages.openssl}/lib"
-      ];
-
     meta = with stdenv.lib; {
       homepage = http://www.denx.de/wiki/U-Boot/;
       description = "Boot loader for embedded systems";
