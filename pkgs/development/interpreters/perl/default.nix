@@ -22,6 +22,7 @@ let
   crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
   common = { version, sha256 }: stdenv.mkDerivation (rec {
     name = "perl-${version}";
+    inherit version;
 
     src = fetchurlBoot {
       url = "mirror://cpan/src/5.0/${name}.tar.gz";
