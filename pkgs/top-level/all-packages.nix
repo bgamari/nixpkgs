@@ -13745,6 +13745,14 @@ with pkgs;
   musl-fts = callPackage ../os-specific/linux/musl/fts.nix { };
   musl-getconf = callPackage ../os-specific/linux/musl/getconf.nix { };
   musl-getent = callPackage ../os-specific/linux/musl/getent.nix { };
+  getent =
+    if hostPlatform.isMusl then musl-getent
+    # This may not be right on other platforms, but preserves existing behavior
+    else /* if hostPlatform.libc == "glibc" then */ glibc.bin;
+
+  getconf =
+    if hostPlatform.isMusl then musl-getconf
+    else lib.getBin stdenv.cc.libc;
 
   nettools = if stdenv.isLinux then callPackage ../os-specific/linux/net-tools { }
              else unixtools.nettools;
@@ -21355,6 +21363,7 @@ with pkgs;
   # Unix tools
   unixtools = recurseIntoAttrs (callPackages ./unix-tools.nix { });
   inherit (unixtools) hexdump ps logger eject umount
-                      mount wall hostname more sysctl getconf
-                      getent;
+                      mount wall hostname more sysctl;
+  inherit (recurseIntoAttrs (callPackages ../os-specific/bsd { }))
+          netbsd openbsd;
 }
