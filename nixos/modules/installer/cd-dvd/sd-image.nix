@@ -77,7 +77,7 @@ in
     system.build.sdImage = pkgs.stdenv.mkDerivation {
       name = config.sdImage.imageName;
 
-      buildInputs = with pkgs; [ dosfstools e2fsprogs mtools libfaketime utillinux ];
+      nativeBuildInputs = with pkgs; [ dosfstools e2fsprogs mtools libfaketime utillinux ];
 
       buildCommand = ''
         mkdir -p $out/nix-support $out/sd-image
@@ -128,7 +128,7 @@ in
         bootDevice=$(lsblk -npo PKNAME $rootPart)
 
         # Resize the root partition and the filesystem to fit the disk
-        echo ",+," | sfdisk -N2 --no-reread $bootDevice
+        echo ",+," | ${pkgs.utillinux}/bin/sfdisk -N2 --no-reread $bootDevice
         ${pkgs.parted}/bin/partprobe
         ${pkgs.e2fsprogs}/bin/resize2fs $rootPart
 
