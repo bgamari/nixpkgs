@@ -106,12 +106,16 @@ stageFuns: let
   # This is a hack for resolving cross-compiled compilers' run-time
   # deps. (That is, compilers that are themselves cross-compiled, as
   # opposed to used to cross-compile packages.)
-  postStage = buildPackages: {
-    __raw = true;
-    stdenv.cc =
-      if buildPackages.stdenv.cc.isClang or false
-      then buildPackages.clang
-      else buildPackages.gcc;
+  postStage = buildPackages: buildPackages // {
+    allowCustomOverrides = false;
+    inherit buildPackages;
+    targetPackages = null;
+    stdenv = {
+      cc =
+        if buildPackages.stdenv.cc.isClang or false
+        then buildPackages.clang
+        else buildPackages.gcc;
+    };
   };
 
 in dfold folder postStage (_: {}) withAllowCustomOverrides
