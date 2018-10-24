@@ -15048,6 +15048,7 @@ in
   aggregateModules = modules:
     callPackage ../os-specific/linux/kmod/aggregator.nix {
       inherit modules;
+      kmod = buildPackages.kmod;
     };
 
   multipart-parser-c = callPackage ../development/libraries/multipart-parser-c { };
