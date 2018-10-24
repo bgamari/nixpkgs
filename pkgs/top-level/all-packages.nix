@@ -14376,6 +14376,7 @@ with pkgs;
   aggregateModules = modules:
     callPackage ../os-specific/linux/kmod/aggregator.nix {
       inherit modules;
+      kmod = buildPackages.kmod;
     };
 
   multipath-tools = callPackage ../os-specific/linux/multipath-tools { };
