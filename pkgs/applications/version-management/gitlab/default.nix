@@ -8,7 +8,7 @@ let
     name = "gitlab-env-${version}";
     inherit ruby;
     gemdir = ./rubyEnv- + "${if gitlabEnterprise then "ee" else "ce"}";
-    groups = [ "default" "unicorn" "ed25519" "metrics" ];
+    groups = [ "default" "unicorn" "ed25519" "metrics" "development" "mysql" ];
   };
 
   flavour = if gitlabEnterprise then "ee" else "ce";
