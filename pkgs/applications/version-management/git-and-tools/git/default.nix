@@ -85,8 +85,8 @@ stdenv.mkDerivation {
   makeFlags = [
     "prefix=\${out}"
     "SHELL_PATH=${stdenv.shell}"
+    "PERL_PATH=${buildPackages.perl}/bin/perl"
   ]
-  ++ (if perlSupport then ["PERL_PATH=${perl}/bin/perl"] else ["NO_PERL=1"])
   ++ (if pythonSupport then ["PYTHON_PATH=${python}/bin/python"] else ["NO_PYTHON=1"])
   ++ stdenv.lib.optionals stdenv.isSunOS ["INSTALL=install" "NO_INET_NTOP=" "NO_INET_PTON="]
   ++ (if stdenv.isDarwin then ["NO_APPLE_COMMON_CRYPTO=1"] else ["sysconfdir=/etc/"])
