@@ -13,8 +13,8 @@ in buildGoPackage rec {
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitaly";
-    rev = "v${version}";
-    sha256 = "00a77xcrqrixxnjv7bxpw5krvdczn6k3vfgkl7pibj4l0kk0k7jd";
+    rev = "7ca7bcb545ec2a1f688acd75f675bda6f2b221e3";
+    sha256 = "1b7vjhaqi6cz9qjkmgnz1mz33k3g2p4g5rj0k97c4zj9lpf5jx53";
   };
 
   goPackagePath = "gitlab.com/gitlab-org/gitaly";
