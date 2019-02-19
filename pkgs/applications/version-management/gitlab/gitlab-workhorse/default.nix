@@ -14,8 +14,6 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ git go ];
 
-  patches = [ ./remove-hardcoded-paths.patch ];
-
   makeFlags = [ "PREFIX=$(out)" "VERSION=${version}" ];
 
   meta = with stdenv.lib; {
