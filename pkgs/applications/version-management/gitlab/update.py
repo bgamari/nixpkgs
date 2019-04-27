@@ -13,6 +13,7 @@ from typing import Iterable
 
 import requests
 from xml.etree import ElementTree
+from distutils.version import LooseVersion
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +29,17 @@ class GitLabRepo:
 
     @property
     def tags(self) -> Iterable[str]:
+        """
+        N.B. Only returns release tags.
+        """
         r = requests.get(self.url + "/tags?format=atom", stream=True)
 
         tree = ElementTree.fromstring(r.content)
-        return sorted((e.text for e in tree.findall(
-            '{http://www.w3.org/2005/Atom}entry/{http://www.w3.org/2005/Atom}title')), reverse=True)
+        tag_names = tree.findall('{http://www.w3.org/2005/Atom}entry/{http://www.w3.org/2005/Atom}title')
+        return sorted(
+            (e.text for e in tag_names if e.text.startswith('v')),
+            reverse=True,
+            key=LooseVersion)
 
     def get_git_hash(self, rev: str):
         out = subprocess.check_output(['nix-prefetch-git', self.url, rev])

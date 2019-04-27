@@ -1,43 +1,19 @@
-{ stdenv, fetchFromGitLab, buildGoPackage, ruby, bundlerEnv }:
+{ stdenv, fetchFromGitLab, buildGoPackage }:
 
-let
-  rubyEnv = bundlerEnv {
-    name = "gitaly-env";
-    inherit ruby;
-    gemdir = ./.;
-  };
-in buildGoPackage rec {
-  version = "1.27.0";
+buildGoPackage rec {
+  version = "1.34.0";
   name = "gitaly-${version}";
 
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitaly";
     rev = "v${version}";
-    sha256 = "0m96048nxbgdkly5rz9d21yz8dmgv1kqis98is5kdz5b1wmhz18r";
+    sha256 = "06r3vpz5nkvskj4xjd5hqlxqwdcmnkxrld9pnmg8ijm8nwiz3kk2";
   };
 
   goPackagePath = "gitlab.com/gitlab-org/gitaly";
 
-  passthru = {
-    inherit rubyEnv;
-  };
-
-  buildInputs = [ rubyEnv.wrappedRuby ];
-
-  postInstall = ''
-    mkdir -p $ruby
-    cp -rv $src/ruby/{bin,lib,git-hooks,vendor} $ruby
-
-    # gitlab-shell will try to read its config relative to the source
-    # code by default which doesn't work in nixos because it's a
-    # read-only filesystem
-    substituteInPlace $ruby/vendor/gitlab-shell/lib/gitlab_config.rb --replace \
-       "File.join(ROOT_PATH, 'config.yml')" \
-       "'/run/gitlab/shell-config.yml'"
-  '';
-
-  outputs = [ "bin" "out" "ruby" ];
+  outputs = [ "bin" "out" ];
 
   meta = with stdenv.lib; {
     homepage = http://www.gitlab.com/;
