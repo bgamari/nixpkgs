@@ -174,6 +174,17 @@ in
           '';
         };
 
+        # see https://github.com/raspberrypi/linux/issues/3198
+        builder = mkOption {
+          default = "dtc";
+          type = types.enum [ "dtc" "dtmerge" ];
+          description = ''
+            Whether to use `dtc` or `dtmerge` to build the overlay. Use of
+            parameters and some Raspberry Pi overlays require `dtmerge`, but
+            this is only available for ARM.
+          '';
+        };
+
         package = mkOption {
           default = null;
           type = types.nullOr types.path;
@@ -199,7 +210,10 @@ in
     };
 
     hardware.deviceTree.package = if (cfg.overlays != [])
-      then pkgs.deviceTree.applyOverlays (filterDTBs dtbsWithSymbols) (withDTBOs cfg.overlays)
-      else (filterDTBs cfg.kernelPackage);
+      then (getAttr cfg.builder builders) cfg.base cfg.overlays else cfg.base;
+      assertions = [{
+        assertion = (cfg.builder == "dtc") -> (all (o: length o.params == 0) cfg.overlays);
+        message = "The `dtc` builder does not support overlay parameters";
+      }];
   };
 }

@@ -1,32 +1,51 @@
-{ lib, stdenvNoCC, dtc, findutils }:
+{ lib, stdenvNoCC, dtc, raspberrypi-tools, findutils }:
 
 with lib; {
-  applyOverlays = (base: overlays': stdenvNoCC.mkDerivation {
-    name = "device-tree-overlays";
-    nativeBuildInputs = [ dtc findutils ];
-    buildCommand = let
+  # Merge overlays with `fdtoverlay` from `dtc`
+  applyOverlays = (base: overlays': stdenvNoCC.mkDerivation (
+    let
       overlays = toList overlays';
-    in ''
-      mkdir -p $out
-      cd ${base}
-      find . -type f -name '*.dtb' -print0 \
-        | xargs -0 cp -v --no-preserve=mode --target-directory $out --parents
+      overlayPaths = assert all (o: length o.params == 0) overlays;
+        map (o: o.overlay) overlays;
+    in {
+      name = "device-tree-overlays";
+      nativeBuildInputs = [ dtc findutils ];
+      buildCommand = let
+        overlays = toList overlays';
+      in ''
+        mkdir -p $out
+        cd ${base}
+        find . -type f -name '*.dtb' -print0 \
+          | xargs -0 cp -v --no-preserve=mode --target-directory $out --parents
 
-      for dtb in $(find $out -type f -name '*.dtb'); do
-        dtbCompat="$( fdtget -t s $dtb / compatible )"
+        for dtb in $(find ${escapeShellArg base} -type f -name "*.dtb"); do
+          outDtb=$out/$(realpath --relative-to ${escapeShellArg base} "$dtb")
+          mkdir -p "$(dirname "$outDtb")"
+          fdtoverlay -o "$outDtb" -i "$dtb" ${escapeShellArgs overlayPaths};
+        done
+      '';
+    }));
 
-        ${flip (concatMapStringsSep "\n") overlays (o: ''
-        overlayCompat="$( fdtget -t s ${o.dtboFile} / compatible )"
-        # overlayCompat in dtbCompat
-        if [[ "$dtbCompat" =~ "$overlayCompat" ]]; then
-          echo "Applying overlay ${o.name} to $( basename $dtb )"
-          mv $dtb{,.in}
-          fdtoverlay -o "$dtb" -i "$dtb.in" ${o.dtboFile};
-          rm $dtb.in
-        fi
-        '')}
+  # Merge overlays with `dtmerge` from `raspberrypi-tools`
+  mergeOverlays = (base: overlays': stdenvNoCC.mkDerivation (
+    let
+      overlays = toList overlays';
+      dtmergeCommands = concatImapStringsSep "\n" (i: o: ''
+        dtmerge $TMPDIR/${toString (i - 1)}.dtb $TMPDIR/${toString i}.dtb \
+          ${escapeShellArg o.overlay} ${escapeShellArgs o.params}
+      '') overlays;
+    in {
+      name = "device-tree-overlays";
+      nativeBuildInputs = [ raspberrypi-tools findutils ];
+      buildCommand = ''
+        for dtb in $(find ${escapeShellArg base} -name "*.dtb" ); do
+          cp -f $dtb $TMPDIR/0.dtb
+          ${dtmergeCommands}
 
-      done
-    '';
-  });
+          outDtb=$out/$(realpath --relative-to ${escapeShellArg base} "$dtb")
+          mkdir -p "$(dirname "$outDtb")"
+          cp $TMPDIR/${toString (length overlays)}.dtb $outDtb
+        done
+      '';
+    }));
 }
