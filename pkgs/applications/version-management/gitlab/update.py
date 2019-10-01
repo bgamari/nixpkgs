@@ -55,8 +55,8 @@ class GitLabRepo:
         :param arch: amd64
         :return: url of the debian package
         """
-        if self.owner != "gitlab-org" or self.repo not in ['gitlab-ce', 'gitlab-ee']:
-            raise Exception(f"don't know how to get deb_url for {self.url}")
+        if flavour not in ['ce', 'ee']:
+            raise Exception(f"don't know how to get deb_url for flavour {flavour}")
         return f"https://packages.gitlab.com/gitlab/gitlab-{flavour}/packages" + \
                f"/debian/stretch/gitlab-{flavour}_{version}-{flavour}.0_{arch}.deb/download.deb"
 
@@ -106,7 +106,10 @@ def _flavour2gitlabrepo(flavour: str):
         raise Exception(f"unknown gitlab flavour: {flavour}, needs to be ce or ee")
 
     owner = 'gitlab-org'
-    repo = 'gitlab-' + flavour
+    if flavour == 'ce':
+        repo = 'gitlab-foss'
+    else:
+        repo = 'gitlab'
 
     return GitLabRepo(owner, repo)
 
@@ -224,10 +227,27 @@ def update_gitlab_shell():
     gitlab_shell_version = data['ce']['passthru']['GITLAB_SHELL_VERSION']
     _call_update_source_version('gitlab-shell', gitlab_shell_version)
 
+    r = GitLabRepo('gitlab-org', 'gitlab-shell')
+    gitlab_shell_dir = pathlib.Path(__file__).parent / 'gitlab-shell'
+
+    for fn in ['Gemfile.lock', 'Gemfile']:
+        with open(gitlab_shell_dir / fn, 'w') as f:
+            f.write(r.get_file(fn, f"v{gitlab_shell_version}"))
+
+    for fn in ['go.mod', 'go.sum']:
+        with open(gitlab_shell_dir / fn, 'w') as f:
+            f.write(r.get_file(f"go/{fn}", f"v{gitlab_shell_version}"))
+
+    subprocess.check_output(['bundix'], cwd=gitlab_shell_dir)
+    subprocess.check_output(['vgo2nix'], cwd=gitlab_shell_dir)
+
+    for fn in ['go.mod', 'go.sum']:
+        os.unlink(gitlab_shell_dir / fn)
+
 
 @cli.command('update-gitlab-workhorse')
 def update_gitlab_workhorse():
-    """Update gitlab-shell"""
+    """Update gitlab-workhorse"""
     data = _get_data_json()
     gitlab_workhorse_version = data['ce']['passthru']['GITLAB_WORKHORSE_VERSION']
     _call_update_source_version('gitlab-workhorse', gitlab_workhorse_version)
