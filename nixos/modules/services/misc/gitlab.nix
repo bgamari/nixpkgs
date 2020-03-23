@@ -166,8 +166,6 @@ let
      '';
   };
 
-  extraGitlabRb = pkgs.writeText "extra-gitlab.rb" cfg.extraGitlabRb;
-
   smtpSettings = pkgs.writeText "gitlab-smtp-settings.rb" ''
     if Rails.env.production?
       Rails.application.config.action_mailer.delivery_method = :smtp
@@ -322,9 +320,9 @@ in {
           end
         '';
         description = ''
-          Extra configuration to be placed in config/extra-gitlab.rb. This can
-          be used to add configuration not otherwise exposed through this module's
-          options.
+          Extra configuration to be placed in config/initializers/extra_gitlab.rb.
+	  This can be used to add configuration not otherwise exposed through
+          the NixOS module's options.
         '';
       };
 
@@ -675,7 +673,6 @@ in {
       "L+ /run/gitlab/shell-config.yml - - - - ${pkgs.writeText "config.yml" (builtins.toJSON gitlabShellConfig)}"
 
       "L+ ${cfg.statePath}/config/unicorn.rb - - - - ${./defaultUnicornConfig.rb}"
-      "L+ ${cfg.statePath}/config/initializers/extra-gitlab.rb - - - - ${extraGitlabRb}"
     ];
 
     systemd.services.gitlab-sidekiq = {
@@ -797,6 +794,8 @@ in {
             cp -rf --no-preserve=mode ${cfg.packages.gitlab}/share/gitlab/db/* ${cfg.statePath}/db
 
             ${cfg.packages.gitlab-shell}/bin/install
+
+            install -m u=rw ${pkgs.writeText "extra_gitlab.rb" cfg.extraGitlabRb} ${cfg.statePath}/config/initializers/extra_gitlab.rb
 
             ${optionalString cfg.smtp.enable ''
               install -m u=rw ${smtpSettings} ${cfg.statePath}/config/initializers/smtp_settings.rb
