@@ -20,10 +20,7 @@
 , vtk ? null
 , zlib ? null
 , docs ? false
-, pythonBindings ? true
-, doCheck ? true }:
-
-assert pythonBindings -> python != null && ply != null;
+}:
 
 let
   version = "2019.1.0";
@@ -117,31 +114,15 @@ let
     };
   };
 
-  src = fetchurl {
-    url = "https://bitbucket.org/fenics-project/dolfin/downloads/dolfin-${version}.tar.gz";
-    sha256 = "0kbyi4x5f6j4zpasch0swh0ch81w2h92rqm1nfp3ydi4a93vky33";
-  };
 
-  python-binding = pythonPackages.buildPythonPackage {
+in
+  stdenv.mkDerivation {
     pname = "dolfin";
-    inherit version src;
-    patches = [ ./update-pybind11.patch ];
-    postPatch = '' cd python '';
-    propagatedBuildInputs = [
-      six sympy ply python numpy pythonPackages.pybind11
-      pythonPackages.mpi4py
-    ];
-    buildInputs = [ boost dolfin ffc pythonPackages.pkgconfig ];
-    nativeBuildInputs = [ cmake ];
-    dontUseCmakeConfigure = true;
-    DOLFIN_ENABLE_MPI4PY = false;
-    DOLFIN_ENABLE_PETSC4PY = false;
-    doCheck = false;
-  };
-
-  dolfin = stdenv.mkDerivation {
-    pname = "dolfin";
-    inherit version src;
+    inherit version;
+    src = fetchurl {
+      url = "https://bitbucket.org/fenics-project/dolfin/downloads/dolfin-${version}.tar.gz";
+      sha256 = "0kbyi4x5f6j4zpasch0swh0ch81w2h92rqm1nfp3ydi4a93vky33";
+    };
     propagatedBuildInputs = [ dijitso fiat ufl ];
     nativeBuildInputs = [ pythonPackages.setuptools ];
     buildInputs = [
@@ -174,7 +155,5 @@ let
       platforms = stdenv.lib.platforms.unix;
       license = stdenv.lib.licenses.lgpl3;
     };
-  };
-in
-python-binding
-#dolfin
+    passthru = { inherit ffc ufl fiat dijitso; };
+  }

@@ -681,6 +681,8 @@ in {
 
   fdint = callPackage ../development/python-modules/fdint { };
 
+	fenics = callPackage ../development/python-modules/fenics { };
+
   fido2 = callPackage ../development/python-modules/fido2 {  };
 
   filterpy = callPackage ../development/python-modules/filterpy { };

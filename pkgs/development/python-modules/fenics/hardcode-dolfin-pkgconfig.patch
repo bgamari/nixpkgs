@@ -1,0 +1,16 @@
+diff --git a/python/dolfin/jit/jit.py b/python/dolfin/jit/jit.py
+index 5ac1ba23b..11eea7339 100644
+--- a/python/dolfin/jit/jit.py
++++ b/python/dolfin/jit/jit.py
+@@ -12,10 +12,7 @@ import ffc
+ from dolfin.cpp.parameter import parameters
+ 
+ # Get DOLFIN pkg-config data
+-if pkgconfig.exists("dolfin"):
+-    dolfin_pc = pkgconfig.parse("dolfin")
+-else:
+-    raise RuntimeError("Could not find DOLFIN pkg-config file. Please make sure appropriate paths are set.")
++dolfin_pc = pkgconfig.parse(DOLFIN_PC_PATH)
+ 
+ 
+ # Copied over from site-packages
