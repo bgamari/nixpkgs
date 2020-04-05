@@ -1,0 +1,27 @@
+commit 430f306b87c1ef624d3afd88f1b19159743b091f
+Author: Cécile Daversin-Catty <cecile@simula.no>
+Date:   Tue Jan 14 13:52:34 2020 +0100
+
+    Update unit test to match pybind11 2.4.3 (now used in dev-env Docker) - trying to fix CircleCI build
+
+diff --git a/python/setup.py b/python/setup.py
+index 50b9e3c70..141ec0571 100644
+--- a/python/setup.py
++++ b/python/setup.py
+@@ -18,7 +18,7 @@ RESTRICT_REQUIREMENTS = ">=2019.2.0.dev0,<2019.3"
+ 
+ REQUIREMENTS = ["numpy",
+                 "pkgconfig",
+-                "pybind11==2.2.4",
++                "pybind11==2.4.3",
+                 "fenics-ffc{}".format(RESTRICT_REQUIREMENTS),
+                 "fenics-ufl{}".format(RESTRICT_REQUIREMENTS),
+                 "fenics-dijitso{}".format(RESTRICT_REQUIREMENTS)]
+@@ -75,7 +75,6 @@ class CMakeBuild(build_ext):
+         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
+         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp, env=env)
+ 
+-
+ setup(name='fenics-dolfin',
+       version=VERSION,
+       author='FEniCS Project',

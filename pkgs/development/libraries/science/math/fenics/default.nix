@@ -17,24 +17,23 @@
 , python ? null
 , sphinx ? null
 , suitesparse ? null
-, swig ? null
 , vtk ? null
 , zlib ? null
 , docs ? false
-, pythonBindings ? false
+, pythonBindings ? true
 , doCheck ? true }:
 
-assert pythonBindings -> python != null && ply != null && swig != null;
+assert pythonBindings -> python != null && ply != null;
 
 let
-  version = "2017.1.0";
+  version = "2019.1.0";
 
   dijitso = pythonPackages.buildPythonPackage {
     pname = "dijitso";
     inherit version;
     src = fetchurl {
       url = "https://bitbucket.org/fenics-project/dijitso/downloads/dijitso-${version}.tar.gz";
-      sha256 = "0mw6mynjmg6yl3l2k33yra2x84s4r6mh44ylhk9znjfk74jra8zg";
+      sha256 = "1ncgbr0bn5cvv16f13g722a0ipw6p9y6p4iasxjziwsp8kn5x97a";
     };
     buildInputs = [ numpy six ];
     nativeBuildInputs = [ pytest ];
@@ -59,11 +58,14 @@ let
     inherit version;
     src = fetchurl {
       url = "https://bitbucket.org/fenics-project/fiat/downloads/fiat-${version}.tar.gz";
-      sha256 = "156ybz70n4n7p88q4pfkvbmg1xr2ll80inzr423mki0nml0q8a6l";
+      sha256 = "1sbi0fbr7w9g9ajr565g3njxrc3qydqjy3334vmz5xg0rd3106il";
     };
-    buildInputs = [ numpy pytest six sympy ];
+    buildInputs = [ numpy six sympy ];
+    nativeBuildInputs = [ pytest ];
+		doCheck = false;
+		doInstallCheck = false;
     checkPhase = ''
-      py.test test/unit/
+      pytest test/unit/
     '';
     meta = {
       description = "Automatic generation of finite element basis functions";
@@ -78,11 +80,12 @@ let
     inherit version;
     src = fetchurl {
       url = "https://bitbucket.org/fenics-project/ufl/downloads/ufl-${version}.tar.gz";
-      sha256 = "13ysimmwad429fjjs07j1fw1gq196p021j7mv66hwrljyh8gm1xg";
+      sha256 = "04daxwg4y9c51sdgvwgmlc82nn0fjw7i2vzs15ckdc7dlazmcfi1";
     };
-    buildInputs = [ numpy pytest six ];
+    buildInputs = [ numpy six ];
+    nativeBuildInputs = [ pytest ];
     checkPhase = ''
-      py.test test/
+      pytest test/
     '';
     meta = {
       description = "A domain-specific language for finite element variational forms";
@@ -97,12 +100,14 @@ let
     inherit version;
     src = fetchurl {
       url = "https://bitbucket.org/fenics-project/ffc/downloads/ffc-${version}.tar.gz";
-      sha256 = "1cw7zsrjms11xrfg7x9wjd90x3w4v5s1wdwa18xqlycqz7cc8wr0";
+      sha256 = "1zdg6pziss4va74pd7jjl8sc3ya2gmhpypccmyd8p7c66ji23y2g";
     };
-    buildInputs = [ dijitso fiat numpy pytest six sympy ufl ];
+    buildInputs = [ dijitso fiat numpy six sympy ufl ];
+    nativeBuildInputs = [ pytest ];
+		doCheck = false;
     checkPhase = ''
       export HOME=$PWD
-      py.test test/unit/
+      pytest test/unit/
     '';
     meta = {
       description = "A compiler for finite element variational forms";
@@ -112,65 +117,64 @@ let
     };
   };
 
-  instant = pythonPackages.buildPythonPackage {
-    pname = "instant";
-    inherit version;
-    src = fetchurl {
-      url = "https://bitbucket.org/fenics-project/instant/downloads/instant-${version}.tar.gz";
-      sha256 = "1rsyh6n04w0na2zirfdcdjip8k8ikb8fc2x94fq8ylc3lpcnpx9q";
-    };
-    buildInputs = [ numpy six ];
+  src = fetchurl {
+    url = "https://bitbucket.org/fenics-project/dolfin/downloads/dolfin-${version}.tar.gz";
+    sha256 = "0kbyi4x5f6j4zpasch0swh0ch81w2h92rqm1nfp3ydi4a93vky33";
+  };
+
+  python-binding = pythonPackages.buildPythonPackage {
+    pname = "dolfin";
+    inherit version src;
+    patches = [ ./update-pybind11.patch ];
+    postPatch = '' cd python '';
+    propagatedBuildInputs = [
+      six sympy ply python numpy pythonPackages.pybind11
+      pythonPackages.mpi4py
+    ];
+    buildInputs = [ boost dolfin ffc pythonPackages.pkgconfig ];
+    nativeBuildInputs = [ cmake ];
+    dontUseCmakeConfigure = true;
+    DOLFIN_ENABLE_MPI4PY = false;
+    DOLFIN_ENABLE_PETSC4PY = false;
+    doCheck = false;
+  };
+
+  dolfin = stdenv.mkDerivation {
+    pname = "dolfin";
+    inherit version src;
+    propagatedBuildInputs = [ dijitso fiat ufl ];
+    nativeBuildInputs = [ pythonPackages.setuptools ];
+    buildInputs = [
+      boost cmake dijitso doxygen eigen ffc fiat gtest hdf5 mpi
+      numpy pkgconfig six sphinx suitesparse sympy ufl vtk zlib
+    ];
+    cmakeFlags = [
+      "-DDOLFIN_CXX_FLAGS=-std=c++11"
+      "-DDOLFIN_AUTO_DETECT_MPI=OFF"
+      ("-DDOLFIN_ENABLE_CHOLMOD=" + (if suitesparse != null then "ON" else "OFF"))
+      ("-DDOLFIN_ENABLE_DOCS=" + (if docs then "ON" else "OFF"))
+      ("-DDOLFIN_ENABLE_HDF5=" + (if hdf5 != null then "ON" else "OFF"))
+      ("-DDOLFIN_ENABLE_MPI=" + (if mpi != null then "ON" else "OFF"))
+      "-DDOLFIN_ENABLE_PARMETIS=OFF"
+      "-DDOLFIN_ENABLE_PETSC=OFF"
+      "-DDOLFIN_ENABLE_SCOTCH=OFF"
+      "-DDOLFIN_ENABLE_SLEPC=OFF"
+      "-DDOLFIN_ENABLE_TRILINOS=OFF"
+      ("-DDOLFIN_ENABLE_UMFPACK=" + (if suitesparse != null then "ON" else "OFF"))
+      ("-DDOLFIN_ENABLE_ZLIB=" + (if zlib != null then "ON" else "OFF"))
+    ];
+    enableParallelBuilding = true;
+    checkPhase = ''
+      make runtests
+    '';
+    postInstall = "source $out/share/dolfin/dolfin.conf";
     meta = {
-      description = "Instant inlining of C and C++ code in Python";
+      description = "The FEniCS Problem Solving Environment in Python and C++";
       homepage = https://fenicsproject.org/;
-      platforms = stdenv.lib.platforms.all;
+      platforms = stdenv.lib.platforms.unix;
       license = stdenv.lib.licenses.lgpl3;
     };
   };
-
 in
-stdenv.mkDerivation {
-  pname = "dolfin";
-  inherit version;
-  src = fetchurl {
-    url = "https://bitbucket.org/fenics-project/dolfin/downloads/dolfin-${version}.tar.gz";
-    sha256 = "14hfb5q6rz79zmy742s2fiqkb9j2cgh5bsg99v76apcr84nklyds";
-  };
-  propagatedBuildInputs = [ dijitso fiat numpy six ufl ];
-  buildInputs = [
-    boost cmake dijitso doxygen eigen ffc fiat gtest hdf5 instant mpi
-    numpy pkgconfig six sphinx suitesparse sympy ufl vtk zlib
-    ] ++ stdenv.lib.optionals pythonBindings [ ply python numpy swig ];
-  patches = [ ./unicode.patch ];
-  cmakeFlags = [ "-DDOLFIN_CXX_FLAGS=-std=c++11"
-    "-DDOLFIN_AUTO_DETECT_MPI=OFF"
-    ("-DDOLFIN_ENABLE_CHOLMOD=" + (if suitesparse != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_DOCS=" + (if docs then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_GTEST=" + (if gtest != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_HDF5=" + (if hdf5 != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_MPI=" + (if mpi != null then "ON" else "OFF"))
-    "-DDOLFIN_ENABLE_PARMETIS=OFF"
-    "-DDOLFIN_ENABLE_PETSC4PY=OFF"
-    "-DDOLFIN_ENABLE_PETSC=OFF"
-    ("-DDOLFIN_ENABLE_PYTHON=" + (if pythonBindings then "ON" else "OFF"))
-    "-DDOLFIN_ENABLE_SCOTCH=OFF"
-    "-DDOLFIN_ENABLE_SLEPC4PY=OFF"
-    "-DDOLFIN_ENABLE_SLEPC=OFF"
-    ("-DDOLFIN_ENABLE_SPHINX=" + (if sphinx != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_TESTING=" + (if doCheck then "ON" else "OFF"))
-    "-DDOLFIN_ENABLE_TRILINOS=OFF"
-    ("-DDOLFIN_ENABLE_UMFPACK=" + (if suitesparse != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_VTK=" + (if vtk != null then "ON" else "OFF"))
-    ("-DDOLFIN_ENABLE_ZLIB=" + (if zlib != null then "ON" else "OFF"))
-  ];
-  checkPhase = ''
-    make runtests
-  '';
-  postInstall = "source $out/share/dolfin/dolfin.conf";
-  meta = {
-    description = "The FEniCS Problem Solving Environment in Python and C++";
-    homepage = https://fenicsproject.org/;
-    platforms = stdenv.lib.platforms.darwin;
-    license = stdenv.lib.licenses.lgpl3;
-  };
-}
+python-binding
+#dolfin
