@@ -1,5 +1,5 @@
 { stdenv, fetchFromGitLab, fetchFromGitHub, buildGoPackage, ruby,
-  bundlerEnv, pkgconfig, libgit2 }:
+  bundlerEnv, pkgconfig, libgit2_0_27 }:
 
 let
   rubyEnv = bundlerEnv rec {
