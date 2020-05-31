@@ -19,14 +19,14 @@ let
       };
   };
 in buildGoPackage rec {
-  version = "12.10.11";
+  version = "13.0.3";
   pname = "gitaly";
 
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitaly";
     rev = "v${version}";
-    sha256 = "1qzrfnihcx8ysy40z2sq5rgdgpp2gy5db8snlx7si2l9h6pjg7hz";
+    sha256 = "0dvgi1pgn3pv7d6fkfmrp5y61inv9zgrw0224v44w00wm7sv9xi1";
   };
 
   # Fix a check which assumes that hook files are writeable by their
@@ -42,29 +42,22 @@ in buildGoPackage rec {
   };
 
   nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ rubyEnv.wrappedRuby libgit2 ];
+  buildInputs = [ rubyEnv.wrappedRuby libgit2_0_27 ];
   goDeps = ./deps.nix;
   preBuild = "rm -r go/src/gitlab.com/gitlab-org/labkit/vendor";
 
   postInstall = ''
     mkdir -p $ruby
     cp -rv $src/ruby/{bin,lib,proto,git-hooks,gitlab-shell} $ruby
-
-    # gitlab-shell will try to read its config relative to the source
-    # code by default which doesn't work in nixos because it's a
-    # read-only filesystem
-    substituteInPlace $ruby/gitlab-shell/lib/gitlab_config.rb --replace \
-       "ROOT_PATH.join('config.yml')" \
-       "Pathname.new('/run/gitlab/shell-config.yml')"
   '';
 
-  outputs = [ "bin" "out" "ruby" ];
+  outputs = [ "out" "ruby" ];
 
   meta = with stdenv.lib; {
-    homepage = https://gitlab.com/gitlab-org/gitaly;
+    homepage = "https://gitlab.com/gitlab-org/gitaly";
     description = "A Git RPC service for handling all the git calls made by GitLab";
     platforms = platforms.linux;
-    maintainers = with maintainers; [ roblabla globin fpletz ];
+    maintainers = with maintainers; [ roblabla globin fpletz talyz ];
     license = licenses.mit;
   };
 }
