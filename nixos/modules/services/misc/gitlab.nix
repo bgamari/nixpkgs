@@ -32,7 +32,7 @@ let
 
   gitalyToml = pkgs.writeText "gitaly.toml" ''
     socket_path = "${lib.escape ["\""] gitalySocket}"
-    bin_dir = "${cfg.packages.gitaly}/bin"
+    bin_dir = "${cfg.packages.gitaly.bin}/bin"
     prometheus_listen_addr = "localhost:9236"
 
     [git]
@@ -727,7 +727,7 @@ in {
         TimeoutSec = "infinity";
         Restart = "on-failure";
         WorkingDirectory = gitlabEnv.HOME;
-        ExecStart = "${cfg.packages.gitaly}/bin/gitaly ${gitalyToml}";
+        ExecStart = "${cfg.packages.gitaly.bin}/bin/gitaly ${gitalyToml}";
       };
     };
 
