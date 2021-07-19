@@ -6,6 +6,8 @@ let
     "ghc865Binary"
     "ghc8102Binary"
     "ghc8102BinaryMinimal"
+    "ghc8105Binary"
+    "ghc8105BinaryMinimal"
     "integer-simple"
     "native-bignum"
     "ghcHEAD"
@@ -51,6 +53,15 @@ in {
     };
 
     ghc8102BinaryMinimal = callPackage ../development/compilers/ghc/8.10.2-binary.nix {
+      llvmPackages = pkgs.llvmPackages_9;
+      minimal = true;
+    };
+
+    ghc8105Binary = callPackage ../development/compilers/ghc/8.10.5-binary.nix {
+      llvmPackages = pkgs.llvmPackages_9;
+    };
+
+    ghc8105BinaryMinimal = callPackage ../development/compilers/ghc/8.10.5-binary.nix {
       llvmPackages = pkgs.llvmPackages_9;
       minimal = true;
     };
