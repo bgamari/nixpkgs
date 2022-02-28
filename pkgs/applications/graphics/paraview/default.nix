@@ -29,6 +29,7 @@ let
 in mkDerivation rec {
   pname = "paraview";
   inherit version;
+  enableParallelBuilding = true;
 
   src = fetchFromGitLab {
     domain = "gitlab.kitware.com";
