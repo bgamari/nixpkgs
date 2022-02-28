@@ -2,6 +2,7 @@
 , boost, cmake, ffmpeg, qtbase, qtx11extras
 , qttools, qtxmlpatterns, qtsvg, gdal, gfortran, libXt, makeWrapper
 , mkDerivation, ninja, mpi, python3, tbb, libGLU, libGL
+, withGmsh ? true, gmsh
 , withDocs ? true
 }:
 
@@ -69,7 +70,12 @@ in mkDerivation rec {
     "-DCMAKE_INSTALL_BINDIR=bin"
     "-DOpenGL_GL_PREFERENCE=GLVND"
     "-GNinja"
-  ];
+  ] ++
+    lib.optionals withGmsh [
+      "-DPARAVIEW_PLUGIN_ENABLE_GmshIO=ON"
+      "-DGmsh_INCLUDE_DIR=${gmsh}/include"
+      "-DGmsh_LIBRARY=${gmsh}/lib/libgmsh.so"
+    ];
 
   nativeBuildInputs = [
     cmake
