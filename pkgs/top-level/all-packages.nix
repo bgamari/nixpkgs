@@ -19206,8 +19206,22 @@ with pkgs;
 
   img = callPackage ../development/tools/img { };
 
-  include-what-you-use = callPackage ../development/tools/analysis/include-what-you-use {
+  include-what-you-use-unwrapped = callPackage ../development/tools/analysis/include-what-you-use {
     llvmPackages = llvmPackages_15;
+  };
+  include-what-you-use = wrapCCWith rec {
+    cc = include-what-you-use-unwrapped;
+    extraBuildCommands = ''
+      wrap include-what-you-use $wrapper $ccPath/include-what-you-use
+      substituteInPlace "$out/bin/include-what-you-use" --replace 'dontLink=0' 'dontLink=1'
+      substituteInPlace "$out/bin/include-what-you-use" --replace ' && isCxx=1 || isCxx=0' '&&  true; isCxx=1'
+
+      rsrc="$out/resource-root"
+      mkdir "$rsrc"
+      ln -s "${cc.llvmPackages.clang}/resource-root/include" "$rsrc"
+      echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
+    '';
+    libcxx = cc.llvmPackages.libcxx;
   };
 
   indent = callPackage ../development/tools/misc/indent { };
