@@ -1,7 +1,9 @@
 { lib, stdenv, fetchurl, cmake, blas, lapack, gfortran, gmm, fltk, libjpeg
-, zlib, libGL, libGLU, xorg, opencascade-occt }:
+, zlib, libGL, libGLU, xorg, opencascade-occt
+, python ? null, enablePython ? false }:
 
 assert (!blas.isILP64) && (!lapack.isILP64);
+assert enablePython -> (python != null);
 
 stdenv.mkDerivation rec {
   pname = "gmsh";
@@ -13,7 +15,7 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    blas lapack gmm fltk libjpeg zlib opencascade-occt
+    blas lapack gmm fltk libjpeg zlib opencascade-occt python
   ] ++ lib.optionals (!stdenv.isDarwin) [
     libGL libGLU xorg.libXrender xorg.libXcursor xorg.libXfixes
     xorg.libXext xorg.libXft xorg.libXinerama xorg.libX11 xorg.libSM
@@ -21,6 +23,12 @@ stdenv.mkDerivation rec {
   ];
 
   enableParallelBuilding = true;
+
+  patches = [ ./fix-python.patch ];
+
+  postPatch = ''
+    substituteInPlace api/gmsh.py --subst-var-by LIBPATH ${placeholder "out"}/lib/libgmsh.so
+  '';
 
   # N.B. the shared object is used by bindings
   cmakeFlags = [
@@ -30,6 +38,12 @@ stdenv.mkDerivation rec {
   ];
 
   nativeBuildInputs = [ cmake gfortran ];
+
+  postFixup = lib.optionalString enablePython ''
+    mkdir -p $out/lib/python${python.pythonVersion}/site-packages
+    mv $out/lib/gmsh.py $out/lib/python${python.pythonVersion}/site-packages
+    mv $out/lib/*.dist-info $out/lib/python${python.pythonVersion}/site-packages
+  '';
 
   doCheck = true;
 
