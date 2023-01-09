@@ -15,12 +15,12 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    blas lapack gmm fltk libjpeg zlib opencascade-occt python
+    blas lapack gmm fltk libjpeg zlib opencascade-occt
   ] ++ lib.optionals (!stdenv.isDarwin) [
     libGL libGLU xorg.libXrender xorg.libXcursor xorg.libXfixes
     xorg.libXext xorg.libXft xorg.libXinerama xorg.libX11 xorg.libSM
     xorg.libICE
-  ];
+  ] ++ lib.optionals enablePython [ python ];
 
   enableParallelBuilding = true;
 
