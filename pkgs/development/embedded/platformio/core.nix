@@ -5,7 +5,20 @@
 , spdx-license-list-data
 }:
 
-with python3.pkgs; buildPythonApplication rec {
+with python3.pkgs;
+let
+  pyparsing = buildPythonPackage rec {
+    pname = "pyparsing";
+    version = "2.3.1";
+    src = fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-ZskmiGJkGrysSpa6dFBuWUyITj9XaQppbSGtghDtZno=";
+    };
+    doCheck = false;
+    doInstallCheck = false;
+  };
+
+in buildPythonApplication rec {
   pname = "platformio";
 
   version = "6.1.6";
