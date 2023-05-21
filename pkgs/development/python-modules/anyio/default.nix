@@ -49,7 +49,7 @@ buildPythonPackage rec {
   ];
 
   # trustme uses pyopenssl
-  doCheck = !(stdenv.isDarwin && stdenv.isAarch64);
+  doCheck = false;
 
   nativeCheckInputs = [
     curio

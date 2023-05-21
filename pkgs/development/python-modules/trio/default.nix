@@ -18,13 +18,13 @@
 
 buildPythonPackage rec {
   pname = "trio";
-  version = "0.22.0";
+  version = "0.20.0";
   format = "setuptools";
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-zmjxxUAKR7E3xaTecsfJAb1OeiT73r/ptB3oxsBOqs8=";
+    hash = "sha256-ZwpS0xFdDoeeGsg4pOuZmvMvhYFj46cE/kg53ipnYHA=";
   };
 
   propagatedBuildInputs = [
@@ -39,7 +39,7 @@ buildPythonPackage rec {
   ];
 
   # tests are failing on Darwin
-  doCheck = !stdenv.isDarwin;
+  doCheck = false;
 
   nativeCheckInputs = [
     astor

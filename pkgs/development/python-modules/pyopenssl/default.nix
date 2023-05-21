@@ -9,17 +9,18 @@
 , sphinxHook
 , sphinx-rtd-theme
 , flaky
+, six
 }:
 
 buildPythonPackage rec {
   pname = "pyopenssl";
-  version = "23.1.1";
+  version = "21.0.0";
   format = "setuptools";
 
   src = fetchPypi {
     pname = "pyOpenSSL";
     inherit version;
-    hash = "sha256-hBSYub7GFiOxtsR+u8AjZ8B9YODhlfGXkIF/EMyNsLc=";
+    hash = "sha256-Xi2MXkbQ2GWukzvvUjAJC9r1UGKB6e7GD6JQ7oBgDLM=";
   };
 
   outputs = [
@@ -41,6 +42,7 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [
     cryptography
+    six
   ];
 
   nativeCheckInputs = [
