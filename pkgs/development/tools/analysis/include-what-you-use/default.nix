@@ -3,11 +3,11 @@
 stdenv.mkDerivation rec {
   pname = "include-what-you-use";
   # Also bump llvmPackages in all-packages.nix to the supported version!
-  version = "0.19";
+  version = "0.20";
 
   src = fetchurl {
     url = "${meta.homepage}/downloads/${pname}-${version}.src.tar.gz";
-    hash = "sha256-KxAVe2DqCK3AjjiWtJIcc/yt1exOtlKymjQSnVAeXuA=";
+    hash = "sha256-dfzh5khfKA+PE/TC0JCxHS/SECtQhXUHyEE6kZt6+Jk=";
   };
 
   postPatch = ''

@@ -19207,7 +19207,7 @@ with pkgs;
   img = callPackage ../development/tools/img { };
 
   include-what-you-use-unwrapped = callPackage ../development/tools/analysis/include-what-you-use {
-    llvmPackages = llvmPackages_15;
+    llvmPackages = llvmPackages_16;
   };
   include-what-you-use = wrapCCWith rec {
     cc = include-what-you-use-unwrapped;
