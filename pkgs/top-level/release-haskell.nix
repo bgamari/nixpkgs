@@ -73,6 +73,7 @@ let
     ghc947
     ghc962
     ghc963
+    ghc964
     ghc981
   ];
 
@@ -511,11 +512,13 @@ let
       hoogle = lib.subtractLists [
         compilerNames.ghc962
         compilerNames.ghc963
+        compilerNames.ghc964
         compilerNames.ghc981
       ] released;
       hlint = lib.subtractLists [
         compilerNames.ghc962
         compilerNames.ghc963
+        compilerNames.ghc964
         compilerNames.ghc981
       ] released;
       hpack = lib.subtractLists [
@@ -580,6 +583,7 @@ let
         compilerNames.ghc947
         compilerNames.ghc962
         compilerNames.ghc963
+        compilerNames.ghc964
       ];
     })
     {
