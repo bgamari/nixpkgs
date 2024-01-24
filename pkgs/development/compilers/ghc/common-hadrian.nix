@@ -148,11 +148,14 @@
     inherit rev;
   })
 
+, patches ? []
+
   # GHC's build system hadrian built from the GHC-to-build's source tree
   # using our bootstrap GHC.
 , hadrian ? import ../../tools/haskell/hadrian/make-hadrian.nix { inherit bootPkgs lib; } {
     ghcSrc = ghcSrc;
     ghcVersion = version;
+    inherit patches;
     userSettings = hadrianUserSettings;
     # Disable haddock generating pretty source listings to stay under 3GB on aarch64-linux
     enableHyperlinkedSource =
@@ -271,7 +274,7 @@ stdenv.mkDerivation ({
     (if lib.versionAtLeast version "9.8"
       then ./docs-sphinx-7-ghc98.patch
       else ./docs-sphinx-7.patch )
-  ];
+  ] ++ patches;
   postPatch = ''
     patchShebangs --build .
   '';
