@@ -38926,6 +38926,9 @@ with pkgs;
 
   kicadAddons = recurseIntoAttrs (callPackage ../applications/science/electronics/kicad/addons {});
 
+  kiauto = callPackage ../applications/science/electronics/kiauto { };
+  kidiff = callPackage ../applications/science/electronics/kidiff { };
+
   librepcb = libsForQt5.callPackage ../applications/science/electronics/librepcb { };
 
   ngspice = libngspice.override {
