@@ -176,6 +176,7 @@ let
       hipfft
       hipsolver
       hipblas
+      hipblaslt
       rocminfo
       rocm-thunk
       rocm-comgr
@@ -207,8 +208,6 @@ let
     # In particular, this triggered warnings from cuda's `aliases.nix`
     "Magma cudaPackages does not match cudaPackages" =
       cudaSupport && (effectiveMagma.cudaPackages.cudaVersion != cudaPackages.cudaVersion);
-    "Rocm support is currently broken because `rocmPackages.hipblaslt` is unpackaged. (2024-06-09)" =
-      rocmSupport;
   };
 in
 buildPythonPackage rec {
