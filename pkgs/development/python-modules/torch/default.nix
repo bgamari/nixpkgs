@@ -82,7 +82,7 @@
 
   # ROCm dependencies
   rocmSupport ? config.rocmSupport,
-  rocmPackages_5,
+  rocmPackages_6,
   gpuTargets ? [ ],
 }:
 
@@ -95,7 +95,7 @@ let
     ;
   inherit (cudaPackages) cudaFlags cudnn nccl;
 
-  rocmPackages = rocmPackages_5;
+  rocmPackages = rocmPackages_6;
 
   setBool = v: if v then "1" else "0";
 
@@ -162,7 +162,6 @@ let
       clr
       rccl
       miopen
-      miopengemm
       rocrand
       rocblas
       rocsparse
