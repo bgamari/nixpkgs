@@ -1,0 +1,55 @@
+commit 846b1a1693dce913ce94baddb57cbc993d56bcf7
+Author: Ben Gamari <ben@smart-cactus.org>
+Date:   Wed Nov 27 13:26:40 2024 -0500
+
+    Allow use of non-vendored Tensile installation
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 87cd6c80..f9357337 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -206,21 +206,23 @@ else()
+       set( Tensile_ROOT "${CMAKE_BINARY_DIR}/virtualenv/Lib/site-packages/Tensile" )
+     endif()
+ 
+-    include(virtualenv)
+-    if (Tensile_TEST_LOCAL_PATH)
+-      virtualenv_install(${Tensile_TEST_LOCAL_PATH})
+-      message (STATUS "using local Tensile from ${Tensile_TEST_LOCAL_PATH}, copied to ${Tensile_ROOT}")
+-    else()
+-      virtualenv_install(${CMAKE_SOURCE_DIR}/tensilelite)
+-    endif()
+-    message(STATUS "Adding ${VIRTUALENV_HOME_DIR} to CMAKE_PREFIX_PATH")
+-    list(APPEND CMAKE_PREFIX_PATH ${VIRTUALENV_HOME_DIR})
+-    if (TENSILE_VERSION)
+-      find_package(Tensile ${TENSILE_VERSION} EXACT REQUIRED HIP LLVM OpenMP PATHS "${INSTALLED_TENSILE_PATH}")
+-    else()
+-      find_package(Tensile 4.33.0 EXACT REQUIRED HIP LLVM OpenMP PATHS "${INSTALLED_TENSILE_PATH}")
++    option(INSTALLED_TENSILE_PATH "Use Tensile installed in the given directory")
++    if (NOT INSTALLED_TENSILE_PATH)
++      include(virtualenv)
++      if (Tensile_TEST_LOCAL_PATH)
++        virtualenv_install(${Tensile_TEST_LOCAL_PATH})
++        message (STATUS "using local Tensile from ${Tensile_TEST_LOCAL_PATH}, copied to ${Tensile_ROOT}")
++      else()
++        virtualenv_install(${CMAKE_SOURCE_DIR}/tensilelite)
++      endif()
++      message(STATUS "Adding ${VIRTUALENV_HOME_DIR} to CMAKE_PREFIX_PATH")
++      list(APPEND CMAKE_PREFIX_PATH ${VIRTUALENV_HOME_DIR})
+     endif()
++
++    if (NOT TENSILE_VERSION)
++      set(TENSILE_VERSION, 4.33.0 CACHE STRING "Tensile version to use")
+     endif()
++    find_package(Tensile ${TENSILE_VERSION} EXACT REQUIRED HIP LLVM OpenMP PATHS "${INSTALLED_TENSILE_PATH}")
+ 
+     # setup hipblaslt defines used for both the library and clients
+     if( BUILD_WITH_TENSILE )
+@@ -229,6 +231,7 @@ else()
+         list(APPEND TENSILE_DEFINES BUILD_WITH_TENSILE=0)
+     endif()
+ endif()
++endif()
+ 
+ find_package( hipblas REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH} /opt/rocm)
+ 
