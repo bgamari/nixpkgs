@@ -147,7 +147,15 @@ in
       after = [ "network.target" ];
 
       serviceConfig = {
-        ExecStart = "${lib.getExe cfg.package} serve ${configFile}";
+        # We copy the configuration into $RUNTIME_DIRECTORY to allow
+        # downstream users (e.g. the GitLab module) to override preStart
+        # in order to, e.g., substitute credentials in the configuration.
+        ExecStartPre = ''
+          cat ${configFile} > $RUNTIME_DIRECTORY/config.yml
+        '';
+        ExecStart = ''
+          ${lib.getExe cfg.package}/registry serve $RUNTIME_DIRECTORY/config.yml
+        '';
         User = "docker-registry";
         WorkingDirectory = cfg.storagePath;
         AmbientCapabilities = lib.mkIf (cfg.port < 1024) "cap_net_bind_service";
