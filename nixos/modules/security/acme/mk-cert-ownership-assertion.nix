@@ -16,6 +16,6 @@ in
   ) services;
 
   message = "Certificate ${cert.domain} (group=${cert.group}) must be readable by service(s) ${
-    catSep ", " (map (svc: "${svc.name} (user=${svc.serviceConfig.User} groups=${catSep " " (svcGroups svc)})") services)
+    catSep ", " (map (svc: "${svc.name} (user=${svc.serviceConfig.User or "root"} groups=${catSep " " (svcGroups svc)})") services)
   }";
 }
