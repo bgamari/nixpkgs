@@ -1,10 +1,11 @@
-{ stdenvNoCC
-, fetchzip
-, lib
-, python3
-, rdfind
-, which
-, writeShellScriptBin
+{
+  stdenvNoCC,
+  fetchzip,
+  lib,
+  python3,
+  rdfind,
+  which,
+  writeShellScriptBin,
 }:
 let
   # check-whence.py attempts to call `git ls-files`, but we don't have a .git,
@@ -18,13 +19,14 @@ let
       exit 1
     fi
   '';
-in stdenvNoCC.mkDerivation rec {
+in
+stdenvNoCC.mkDerivation rec {
   pname = "linux-firmware";
-  version = "20250109";
+  version = "20250410";
 
   src = fetchzip {
-    url = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${version}.tar.gz";
-    hash = "sha256-eVcHnqYXJwuz6flBB4YTllcmFKiCJXKFgZs1FumUJoA=";
+    url = "https://cdn.kernel.org/pub/linux/kernel/firmware/linux-firmware-${version}.tar.xz ";
+    hash = "sha256-aQdEl9+7zbNqWSII9hjRuPePvSfWVql5u5TIrGsa+Ao=";
   };
 
   postUnpack = ''
@@ -38,7 +40,10 @@ in stdenvNoCC.mkDerivation rec {
     which
   ];
 
-  installTargets = [ "install" "dedup" ];
+  installTargets = [
+    "install"
+    "dedup"
+  ];
   makeFlags = [ "DESTDIR=$(out)" ];
 
   # Firmware blobs do not need fixing and should not be modified
